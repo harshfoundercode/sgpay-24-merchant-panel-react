@@ -262,14 +262,14 @@ export default function MerchantProfile() {
             
             <CredentialField
               label="API Key"
-              value={Api_key }
+              value={Api_key || "key not set" }
               show={showApiKey}
               onToggle={() => setShowApiKey(v => !v)}
             />
 
             <CredentialField
               label="Secret Key"
-              value={Secrete_key }
+              value={Secrete_key|| "key not set" }
               show={showSecret}
               onToggle={() => setShowSecret(v => !v)}
             />
