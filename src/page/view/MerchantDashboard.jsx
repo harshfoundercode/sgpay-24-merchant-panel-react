@@ -3,6 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell,
 } from "recharts";
+import DateRangePicker from "../../components/DatePicker";
 
 const payoutTrend = [
   { date: "8 May", value: 100000 },
@@ -63,6 +64,25 @@ const CustomBarTooltip = ({ active, payload, label }) => {
 export default function MerchantDashboard() {
   const [chartPeriod, setChartPeriod] = useState("7D");
 
+  const [dateRange, setDateRange] = useState(null);
+
+    const handleDateChange = (dateData) => {
+        if (dateData) {
+            setDateRange(dateData);
+            console.log('Date Range Selected:', {
+                startDate: dateData.startDate,
+                endDate: dateData.endDate,
+                startFormatted: dateData.startFormatted,
+                endFormatted: dateData.endFormatted,
+                dateRange: dateData.dateRange
+            });
+            // Fetch data for selected date range here
+            // fetchDashboardData(dateData.startDate, dateData.endDate);
+        } else {
+            console.log('Date range cleared');
+            // Handle clearing date range
+        }
+    };
   return (
     <div className="min-h-screen bg-gray-50 p-5">
 
@@ -75,15 +95,7 @@ export default function MerchantDashboard() {
           <p className="text-xs text-gray-600 font-medium mt-0.5">Here's your payout overview.</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Date Range */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 cursor-pointer hover:bg-gray-50">
-            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400">
-              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-            </svg>
-            <span className="text-xs">13 May 2025 – 14 May 2025</span>
-            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400"><path d="M19 9l-7 7-7-7"/></svg>
-          </div>
-        
+          
           {/* Merchant info */}
           <div className="flex items-center gap-2.5 px-3 py-2 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
             <div className="w-8 h-8 bg-gray-100 rounded-2xl flex items-center justify-center">
@@ -200,11 +212,10 @@ export default function MerchantDashboard() {
 
       {/* ── Filters ── */}
       <div className="flex items-center gap-3 mb-5 flex-wrap">
-        <div className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-700 cursor-pointer hover:bg-gray-50 ">
-          <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          13 May 2025 – 14 May 2025
-          <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400"><path d="M19 9l-7 7-7-7"/></svg>
-        </div>
+        <DateRangePicker 
+                        onDateChange={handleDateChange}
+                        placeholder="14 May, 2025 - 14 May, 2025"
+                    />
         <div className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-700 cursor-pointer hover:bg-gray-50 min-w-[130px]">
           <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
           All Status

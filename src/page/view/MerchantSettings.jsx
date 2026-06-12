@@ -22,23 +22,15 @@ const Badge = ({ label, color }) => {
 
 // ── Header (shared) ──────────────────────────────────────────────────────────
 const PageHeader = () => (
+  
   <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
     <div>
       <h1 className="text-[18px] font-bold text-gray-900">Settings</h1>
       <p className="text-xs text-gray-600 font-medium mt-0.5">Manage your account settings and webhook configuration</p>
     </div>
     <div className="flex items-center gap-3">
-      <div className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-700 shadow-sm cursor-pointer hover:bg-gray-50">
-        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        13 May 2025 – 14 May 2025
-        <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400"><path d="M19 9l-7 7-7-7"/></svg>
-      </div>
-      <div className="relative">
-        <div className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center shadow-xs cursor-pointer hover:bg-gray-50">
-          <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-500"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        </div>
-        <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">3</span>
-      </div>
+     
+      
       <div className="flex items-center gap-2.5 px-3 py-2 bg-white border border-gray-200 rounded-xl shadow-xs cursor-pointer hover:bg-gray-50">
         <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
           <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>

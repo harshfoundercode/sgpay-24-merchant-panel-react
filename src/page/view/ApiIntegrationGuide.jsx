@@ -7,7 +7,7 @@ import {
   Layers, BookOpen, Wrench, BarChart2, ExternalLink,
   ToggleLeft,
 } from "lucide-react";
-
+import DateRangePicker from "../../components/DatePicker";
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
 const API_BASE_URL = "https://api.bridgepay.com";
@@ -236,6 +236,25 @@ export default function ApiIntegrationGuide() {
     setTimeout(() => setMidCopied(false), 1500);
   };
 
+  const [dateRange, setDateRange] = useState(null);
+
+    const handleDateChange = (dateData) => {
+        if (dateData) {
+            setDateRange(dateData);
+            console.log('Date Range Selected:', {
+                startDate: dateData.startDate,
+                endDate: dateData.endDate,
+                startFormatted: dateData.startFormatted,
+                endFormatted: dateData.endFormatted,
+                dateRange: dateData.dateRange
+            });
+            // Fetch data for selected date range here
+            // fetchDashboardData(dateData.startDate, dateData.endDate);
+        } else {
+            console.log('Date range cleared');
+            // Handle clearing date range
+        }
+    };
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 font-sans text-sm">
 
@@ -252,20 +271,12 @@ export default function ApiIntegrationGuide() {
           </div>
           <div className="flex items-center gap-3">
             {/* date range */}
-            <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-600 bg-white hover:bg-gray-50 transition-colors">
-              <Calendar size={13} />
-              13 May 2025 – 14 May 2025
-              <ChevronDown size={11} />
-            </button>
+           <DateRangePicker 
+                        onDateChange={handleDateChange}
+                        placeholder="14 May, 2025 - 14 May, 2025"
+                    />
 
-            {/* bell */}
-            <div className="relative cursor-pointer">
-              <Bell size={20} className="text-gray-400" />
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                8
-              </span>
-            </div>
-
+           
             {/* merchant dropdown */}
             <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
               <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center flex-shrink-0">
