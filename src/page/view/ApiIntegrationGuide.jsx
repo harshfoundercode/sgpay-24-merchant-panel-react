@@ -13,25 +13,7 @@ import {
 const API_BASE_URL = "https://api.bridgepay.com";
 const MERCHANT_ID  = "MID123456";
 
-const LEFT_NAV = [
-  { icon: Home,          label: "Introduction",      id: "intro",   active: true },
-  { icon: Lock,          label: "Authentication",     id: "auth" },
-  { icon: Send,          label: "Create Payout",      id: "payout" },
-  { icon: Search,        label: "Check Status",       id: "status" },
-  { icon: Webhook,       label: "Webhook",            id: "webhook" },
-  { icon: AlertTriangle, label: "Error Codes",        id: "errors" },
-  { icon: Code2,         label: "SDKs",               id: "sdk" },
-  { icon: Package,       label: "Postman Collection", id: "postman" },
-];
 
-const QUICK_LINKS = [
-  { icon: Lock,          label: "Authentication" },
-  { icon: Send,          label: "Create Payout" },
-  { icon: Search,        label: "Check Status" },
-  { icon: Webhook,       label: "Webhook Guide" },
-  { icon: AlertTriangle, label: "Error Codes" },
-  { icon: Code2,         label: "SDKs & Libraries" },
-];
 
 const TOOLS = [
   { label: "Postman Collection", sub: "Download collection",       bg: "bg-orange-100",  icon: Package,       iconColor: "text-orange-600" },
@@ -363,21 +345,7 @@ export default function ApiIntegrationGuide() {
                 ))}
               </div>
 
-              {/* action buttons */}
-              <div className="flex gap-3 flex-wrap">
-                <button
-                  onClick={handleCopyUrl}
-                  className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-[13px] font-semibold text-blue-600 hover:bg-blue-50 transition-colors"
-                >
-                  <Copy size={14} /> Copy Base URL
-                </button>
-                <button className="flex items-center gap-2 border border-orange-200 rounded-lg px-4 py-2 text-[13px] font-semibold text-orange-600 hover:bg-orange-50 transition-colors">
-                  <Download size={14} /> Download Postman
-                </button>
-                <button className="flex items-center gap-2 border border-red-200 rounded-lg px-4 py-2 text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors">
-                  <FileText size={14} /> Download API Docs (PDF)
-                </button>
-              </div>
+              
             </div>
 
             {/* ── API SECTIONS (1,2,3) ── */}
@@ -385,10 +353,7 @@ export default function ApiIntegrationGuide() {
               <ApiSection key={section.n} section={section} />
             ))}
 
-            {/* View More */}
-            <button className="w-full py-3 flex items-center justify-center gap-2 text-[13px] font-semibold text-blue-600 hover:text-blue-800 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 transition-colors">
-              View More Endpoints <ChevronDown size={15} />
-            </button>
+           
           </div>
 
           {/* ── RIGHT PANEL ── */}
@@ -423,44 +388,7 @@ export default function ApiIntegrationGuide() {
               </div>
             </div>
 
-            {/* Quick Links */}
-            <div>
-              <p className="text-[12px] font-bold text-gray-800 mb-2">Quick Links</p>
-              <div className="space-y-0.5">
-                {QUICK_LINKS.map(({ icon: Icon, label }) => (
-                  <button
-                    key={label}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[12px] text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors group"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Icon size={13} className="text-gray-400 group-hover:text-blue-500 flex-shrink-0" />
-                      {label}
-                    </div>
-                    <ChevronRight size={12} className="text-gray-300 group-hover:text-blue-400 flex-shrink-0" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Tools & Resources */}
-            <div>
-              <p className="text-[12px] font-bold text-gray-800 mb-3">Tools & Resources</p>
-              <div className="space-y-3">
-                {TOOLS.map(({ label, sub, bg, icon: Icon, iconColor }) => (
-                  <div key={label} className="flex items-start gap-2.5 cursor-pointer group">
-                    <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                      <Icon size={15} className={iconColor} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[12px] font-semibold text-gray-800 group-hover:text-blue-600 transition-colors leading-tight">
-                        {label}
-                      </p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+           
 
             {/* Need Custom Integration */}
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
