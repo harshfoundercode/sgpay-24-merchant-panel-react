@@ -257,46 +257,7 @@ export default function ApiIntegrationGuide() {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 font-sans text-sm">
 
-      {/* ══════════════════════════════════════════
-          LEFT GUIDE NAV (white panel)
-      ══════════════════════════════════════════ */}
-      <aside className="w-[200px] bg-white border-r border-gray-200 flex flex-col flex-shrink-0 overflow-y-auto">
-        <nav className="flex-1 py-4 px-3 space-y-0.5">
-          {LEFT_NAV.map(({ icon: Icon, label, id }) => (
-            <button
-              key={id}
-              onClick={() => setActiveLeftNav(id)}
-              className={`
-                w-full flex items-center gap-2.5 px-3 py-2 rounded-lg
-                text-left text-[13px] transition-colors
-                ${activeLeftNav === id
-                  ? "bg-blue-50 text-blue-600 font-semibold"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}
-              `}
-            >
-              <Icon size={14} className="flex-shrink-0" />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Need Help box */}
-        <div className="p-3 border-t border-gray-100">
-          <p className="text-[11px] font-bold text-gray-500 px-1 mb-2">Need Help?</p>
-          <div className="bg-gray-50 rounded-xl p-3">
-            <p className="text-[11px] text-gray-500 leading-relaxed mb-3">
-              Check our integration guide or contact our support team.
-            </p>
-            <button className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-[12px] font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-              <Bell size={13} /> Contact Support
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* ══════════════════════════════════════════
-          MAIN AREA
-      ══════════════════════════════════════════ */}
+   
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* ── TOP HEADER ── */}

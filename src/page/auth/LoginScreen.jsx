@@ -88,10 +88,10 @@ const CityScapeIllustration = () => (
     <rect x="160" y="45" width="55" height="145" rx="2" fill="#9ab8e8" opacity="0.8" />
     <rect x="172" y="35" width="15" height="15" rx="1" fill="#9ab8e8" opacity="0.7" />
     {/* Windows */}
-    {[55,65,75,85,95,105,115,125].map((y, i) => (
+    {[55, 65, 75, 85, 95, 105, 115, 125].map((y, i) => (
       <rect key={i} x="168" y={y} width="8" height="6" rx="1" fill="#daeaf8" opacity="0.7" />
     ))}
-    {[55,65,75,85,95,105,115,125].map((y, i) => (
+    {[55, 65, 75, 85, 95, 105, 115, 125].map((y, i) => (
       <rect key={i} x="182" y={y} width="8" height="6" rx="1" fill="#daeaf8" opacity="0.7" />
     ))}
     <rect x="240" y="55" width="60" height="135" rx="2" fill="#93b3e5" opacity="0.8" />
@@ -123,13 +123,15 @@ export default function BridgePayLogin() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-      const navigate = useNavigate();
+  const navigate = useNavigate();
 
-
+  const handleForgotPassword = () => {
+    navigate('/forgot-password');
+  };
   const handleLogin = (e) => {
-     setTimeout(() => {
-            navigate('/dashboard');
-        }, 1500);
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 1500);
   };
 
   return (
@@ -269,7 +271,11 @@ export default function BridgePayLogin() {
                 />
                 <span className="text-sm text-gray-600">Remember me</span>
               </label>
-              <button className="text-sm text-blue-600 font-medium hover:underline transition">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition"
+              >
                 Forgot Password?
               </button>
             </div>
@@ -289,13 +295,6 @@ export default function BridgePayLogin() {
               <div className="flex-1 h-px bg-gray-200" />
             </div>
 
-            {/* OTP button */}
-            <button className="w-full border border-gray-200 hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-medium py-3.5 rounded-xl transition text-sm flex items-center justify-center gap-2">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              Login with OTP
-            </button>
 
             {/* Support */}
             <p className="text-center text-sm text-gray-500 pt-1">

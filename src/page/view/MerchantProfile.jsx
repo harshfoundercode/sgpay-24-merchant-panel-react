@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Secrete_key, Api_key } from "../../../env";
+import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 // ── Reusable components ───────────────────────────────────────────────────────
 const InfoRow = ({ label, value, isNode }) => (
@@ -112,6 +115,9 @@ export default function MerchantProfile() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+    const navigate = useNavigate();
+
+
   const [profile, setProfile] = useState({
     name: "Demo Store",
     email: "merchant@demostore.com",
@@ -308,6 +314,7 @@ export default function MerchantProfile() {
                   bg: "bg-indigo-50",
                   title: "API Integration Guide",
                   desc: "Step-by-step guide to integrate with Bridge Pay APIs",
+                  page: "/apiIntegrate",
                 },
 
                 {
@@ -315,11 +322,13 @@ export default function MerchantProfile() {
                   bg: "bg-amber-50",
                   title: "Error Codes Documentation",
                   desc: "Understand API error codes and their solutions",
+                  page: "/errorCode",
                 },
               ].map((doc) => (
                 <button
                   key={doc.title}
                   className="w-full flex items-center gap-3 p-3.5 border border-gray-100 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all text-left group"
+                  onClick={() => navigate(doc.page)}
                 >
                   <div className={`w-9 h-9 rounded-xl ${doc.bg} flex items-center justify-center flex-shrink-0`}>
                     {doc.icon}
