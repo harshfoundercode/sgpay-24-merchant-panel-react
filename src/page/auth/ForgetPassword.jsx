@@ -823,7 +823,7 @@ export default function ForgotPassword() {
       )}
 
       {/* ── Card ── */}
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex min-h-[560px]">
+      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex min-h-140">
 
         {/* ── Left Panel ── */}
         <div className="hidden lg:flex flex-col w-[38%] shrink-0 bg-[#eef0fb] px-7 py-8">
@@ -850,7 +850,7 @@ export default function ForgotPassword() {
 
           {/* Security badge */}
           <div className="bg-white rounded-xl p-3.5 flex items-start gap-3 shadow-sm">
-            <Shield size={16} className="text-indigo-500 mt-0.5 flex-shrink-0" />
+            <Shield size={16} className="text-indigo-500 mt-0.5 shrink-0" />
             <div>
               <p className="text-[11px] font-bold text-gray-800 mb-1">{lc.badgeTitle}</p>
               {lc.badgeText && (
@@ -865,7 +865,7 @@ export default function ForgotPassword() {
                     "Avoid common words",
                   ].map((t) => (
                     <li key={t} className="flex items-center gap-1.5 text-[11px] text-gray-600">
-                      <CheckCircle size={10} className="text-green-500 flex-shrink-0" /> {t}
+                      <CheckCircle size={10} className="text-green-500 shrink-0" /> {t}
                     </li>
                   ))}
                 </ul>
@@ -878,7 +878,7 @@ export default function ForgotPassword() {
         <div className="flex-1 flex flex-col overflow-y-auto">
 
           {/* Top bar */}
-          <div className="flex justify-end px-6 pt-5 flex-shrink-0">
+          <div className="flex justify-end px-6 pt-5 shrink-0">
             <button
               onClick={() => navigate("/")}
               className="text-[12px] font-semibold text-indigo-600 hover:opacity-75 transition-opacity"
@@ -897,7 +897,7 @@ export default function ForgotPassword() {
                 const isActive = step === n;
                 return (
                   <React.Fragment key={n}>
-                    <div className="flex flex-col items-center gap-1.5 min-w-[72px]">
+                    <div className="flex flex-col items-center gap-1.5 min-w-18">
                       <div className={`
                         w-9 h-9 rounded-full flex items-center justify-center
                         text-[13px] font-bold border-2 transition-all duration-200
@@ -913,7 +913,7 @@ export default function ForgotPassword() {
                       </span>
                     </div>
                     {i < STEPS.length - 1 && (
-                      <div className={`flex-1 h-0.5 mt-[18px] transition-all duration-300
+                      <div className={`flex-1 h-0.5 mt-4.5 transition-all duration-300
                         ${step > n ? "bg-indigo-600" : "bg-gray-200"}`}
                       />
                     )}
@@ -934,7 +934,7 @@ export default function ForgotPassword() {
                     {/* Header */}
                     <div className="flex items-center justify-between px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg(n)}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg(n)}`}>
                           {isDone ? <CheckCircle size={16} /> : icon}
                         </div>
                         <div>
@@ -944,7 +944,7 @@ export default function ForgotPassword() {
                           <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>
                         </div>
                       </div>
-                      {!isOpen && <ChevronDown size={15} className="text-gray-300 flex-shrink-0" />}
+                      {!isOpen && <ChevronDown size={15} className="text-gray-300 shrink-0" />}
                     </div>
 
                     {/* Body */}
@@ -999,7 +999,7 @@ export default function ForgotPassword() {
                                   <p className="text-[12px] font-semibold text-gray-800">{email || "example@email.com"}</p>
                                 </div>
                               </div>
-                              <button onClick={() => setStep(1)} className="text-[12px] font-semibold text-indigo-600 hover:underline flex-shrink-0">
+                              <button onClick={() => setStep(1)} className="text-[12px] font-semibold text-indigo-600 hover:underline shrink-0">
                                 Change
                               </button>
                             </div>
@@ -1084,7 +1084,7 @@ export default function ForgotPassword() {
                             )}
 
                             <div className="flex items-start gap-2 mt-3 bg-blue-50 border border-blue-100 rounded-xl px-3.5 py-2.5">
-                              <Info size={13} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                              <Info size={13} className="text-blue-500 mt-0.5 shrink-0" />
                               <p className="text-[11px] text-blue-600 leading-relaxed">
                                 Make sure your new password is different from previous ones.
                               </p>
@@ -1109,7 +1109,7 @@ export default function ForgotPassword() {
           </div>
 
           {/* Bottom hint */}
-          <p className="text-center text-[11px] text-gray-400 pb-4 px-6 flex-shrink-0">
+          <p className="text-center text-[11px] text-gray-400 pb-4 px-6 shrink-0">
             {step === 1 && <>Check spam if you don't get the OTP. <span className="text-indigo-600 font-semibold cursor-pointer hover:underline">Resend OTP</span></>}
             {step === 2 && "OTP expires in 10 minutes for security."}
             {step === 3 && "You can login with your new password after reset."}
