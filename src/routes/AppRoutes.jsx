@@ -42,7 +42,7 @@ import MerchantProfile from '../page/view/MerchantProfile';
 import MerchantSettings from '../page/view/MerchantSettings';
 import ApiIntegrationGuide from '../page/view/ApiIntegrationGuide';
 import ErrorCodeReference from '../page/view/ErrorCodesDocument';
-import authService from '../services/authService';
+import authService from '../services/AuthServices';
 
 const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem('token');
