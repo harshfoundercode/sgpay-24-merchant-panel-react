@@ -25,7 +25,7 @@ const formatCurrencyShort = (amount) => {
 };
 
 const formatNumber = (num) => {
-  if (!num) return '0';
+  if (!num && num !== 0) return '0';
   return parseInt(num).toLocaleString();
 };
 
@@ -68,6 +68,7 @@ export default function MerchantDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedDateRange, setSelectedDateRange] = useState(null);
 
   // Track window width for responsive charts
   useEffect(() => {
@@ -113,9 +114,11 @@ export default function MerchantDashboard() {
   const handleDateChange = (dateData) => {
     if (dateData) {
       setDateRange(dateData);
+      setSelectedDateRange(dateData);
       console.log('Date Range Selected:', dateData);
     } else {
       setDateRange(null);
+      setSelectedDateRange(null);
       console.log('Date range cleared');
     }
   };
@@ -144,19 +147,38 @@ export default function MerchantDashboard() {
     total_transactions: 0,
     this_month_payout: "0.00",
     this_month_count: 0,
-    pending_requests: null,
+    pending_requests: 0,
     pending_amount: "0.00",
-    failed_transactions: null,
+    failed_transactions: "0",
     failed_amount: "0.00"
   };
   
   const recentTransactions = data.recent_transactions || [];
   const payoutTrend = data.payout_trend || [];
 
+  // ─── Format payout trend dates ──────────────────────────────────────────────
+  console.log('Raw Payout Trend:', payoutTrend);
+
+  const formattedPayoutTrend = payoutTrend.map(item => {
+    const amountValue = parseFloat(item.total_amount) || parseFloat(item.amount) || 0;
+    
+    return {
+      ...item,
+      formattedDate: new Date(item.date).toLocaleDateString('en-IN', { 
+        day: '2-digit', 
+        month: 'short' 
+      }),
+      amount: amountValue,
+      count: item.txn_count || 0
+    };
+  });
+
+  console.log('Formatted Payout Trend:', formattedPayoutTrend);
+
   // ─── Pie Chart Data ────────────────────────────────────────────────────────
   const successCount = parseInt(ratio.success) || 0;
   const failedCount = parseInt(ratio.failed) || 0;
-  const pendingCount = volumeOverview.pending_requests || 0;
+  const pendingCount = parseInt(volumeOverview.pending_requests) || 0;
   
   const pieData = [
     { name: "Successful", value: successCount || 1, color: "#16a34a" },
@@ -164,12 +186,29 @@ export default function MerchantDashboard() {
     { name: "Pending", value: pendingCount || 1, color: "#f59e0b" },
   ].filter(item => item.value > 0);
 
-  // If no data, show default
   if (pieData.length === 0) {
     pieData.push({ name: "No Data", value: 1, color: "#9ca3af" });
   }
 
   const totalPayouts = successCount + failedCount + pendingCount;
+
+  // ─── Format date range display ──────────────────────────────────────────────
+  const formatDateRangeDisplay = () => {
+    if (selectedDateRange) {
+      const start = selectedDateRange.startDate?.toLocaleDateString('en-US', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+      const end = selectedDateRange.endDate?.toLocaleDateString('en-US', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+      return `${start} - ${end}`;
+    }
+    return "All Time";
+  };
 
   // ─── Loading State ──────────────────────────────────────────────────────────
   if (loading) {
@@ -211,23 +250,14 @@ export default function MerchantDashboard() {
           <h1 className="text-base sm:text-[18px] font-bold text-gray-900">
             Welcome back! <span className="text-lg sm:text-xl">👋</span>
           </h1>
-          <p className="text-[11px] sm:text-xs text-gray-600 font-medium mt-0.5">Here's your payout overview.</p>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 w-full sm:w-auto">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 rounded-xl flex items-center justify-center shrink-0">
-              <svg width={14} sm:width={16} height={14} sm:height={16} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}>
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-            </div>
-            <div className="min-w-0">
-              <div className="text-[11px] sm:text-xs font-bold text-gray-900 truncate">Merchant Dashboard</div>
-              <div className="text-[9px] sm:text-[10px] text-gray-400">Wallet: {formatCurrency(walletBalance)}</div>
-            </div>
-            <svg width={12} sm:width={14} height={12} sm:height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400 shrink-0">
-              <path d="M19 9l-7 7-7-7"/>
-            </svg>
-          </div>
+          <p className="text-[11px] sm:text-xs text-gray-600 font-medium mt-0.5">
+            Here's your payout overview.
+            {selectedDateRange && (
+              <span className="ml-2 text-blue-600 font-semibold">
+                ({formatDateRangeDisplay()})
+              </span>
+            )}
+          </p>
         </div>
       </div>
 
@@ -334,17 +364,27 @@ export default function MerchantDashboard() {
           onDateChange={handleDateChange}
           placeholder="Select date range"
         />
-        <div className="flex items-center justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-[11px] sm:text-xs text-gray-700 cursor-pointer hover:bg-gray-50">
-          <div className="flex items-center gap-2">
-            <svg width={12} sm:width={14} height={12} sm:height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400">
-              <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-            </svg>
-            All Status
+        
+        {/* Selected Date Range Display */}
+        {selectedDateRange && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-xl text-[11px] sm:text-xs">
+            <span className="text-blue-600 font-medium">Selected:</span>
+            <span className="text-gray-700 font-semibold">{formatDateRangeDisplay()}</span>
+            <button 
+              onClick={() => {
+                setSelectedDateRange(null);
+                setDateRange(null);
+              }}
+              className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+            >
+              <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
-          <svg width={10} sm:width={12} height={10} sm:height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400">
-            <path d="M19 9l-7 7-7-7"/>
-          </svg>
-        </div>
+        )}
+        
         <button 
           onClick={handleRefresh}
           className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-[11px] sm:text-xs text-gray-500 hover:bg-gray-50 transition-colors sm:ml-auto"
@@ -382,9 +422,9 @@ export default function MerchantDashboard() {
             <span className="text-[11px] sm:text-xs text-gray-800 font-semibold">Payout Amount (₹)</span>
           </div>
           <div className="h-50 w-full">
-            {payoutTrend.length > 0 ? (
+            {formattedPayoutTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={payoutTrend} margin={{ top:5, right:10, left:0, bottom:0 }}>
+                <LineChart data={formattedPayoutTrend} margin={{ top:5, right:10, left:0, bottom:0 }}>
                   <defs>
                     <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15}/>
@@ -392,7 +432,7 @@ export default function MerchantDashboard() {
                     </linearGradient>
                   </defs>
                   <XAxis 
-                    dataKey="date" 
+                    dataKey="formattedDate"
                     tick={getTickStyle()} 
                     axisLine={{ stroke: "#CBD5E1", strokeWidth: 1 }} 
                     tickLine={false} 
@@ -493,15 +533,15 @@ export default function MerchantDashboard() {
             ))}
           </div>
           <div className="h-50 w-full">
-            {payoutTrend.length > 0 ? (
+            {formattedPayoutTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
-                  data={payoutTrend} 
+                  data={formattedPayoutTrend} 
                   margin={{ top:5, right:10, left:0, bottom:0 }} 
                   barSize={isMobile ? 20 : 24}
                 >
                   <XAxis 
-                    dataKey="date" 
+                    dataKey="formattedDate"
                     tick={getTickStyle()} 
                     axisLine={{ stroke: "#CBD5E1", strokeWidth: 1 }} 
                     tickLine={false} 
@@ -583,6 +623,54 @@ export default function MerchantDashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── Recent Transactions Table ── */}
+      {recentTransactions.length > 0 && (
+        <div className="mt-4 sm:mt-5 bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
+          <h3 className="text-sm font-bold text-gray-900 mb-3">Recent Transactions</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs sm:text-sm">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-2 px-2 text-gray-500 font-medium">TRX ID</th>
+                  <th className="text-left py-2 px-2 text-gray-500 font-medium">Order ID</th>
+                  <th className="text-left py-2 px-2 text-gray-500 font-medium">Beneficiary</th>
+                  <th className="text-left py-2 px-2 text-gray-500 font-medium">Amount</th>
+                  <th className="text-left py-2 px-2 text-gray-500 font-medium">Status</th>
+                  <th className="text-left py-2 px-2 text-gray-500 font-medium">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentTransactions.slice(0, 5).map((txn) => (
+                  <tr key={txn.id} className="border-b border-gray-50">
+                    <td className="py-2 px-2 text-gray-900 font-medium">{txn.trx_id}</td>
+                    <td className="py-2 px-2 text-gray-600">{txn.order_id}</td>
+                    <td className="py-2 px-2 text-gray-600">{txn.bene_name}</td>
+                    <td className="py-2 px-2 text-gray-900 font-medium">{formatCurrency(txn.amount)}</td>
+                    <td className="py-2 px-2">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        txn.status === 'success' ? 'bg-green-100 text-green-700' :
+                        txn.status === 'failed' ? 'bg-red-100 text-red-700' :
+                        'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {txn.status}
+                      </span>
+                    </td>
+                    <td className="py-2 px-2 text-gray-500">
+                      {new Date(txn.created_at).toLocaleDateString('en-IN', { 
+                        day: '2-digit', 
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

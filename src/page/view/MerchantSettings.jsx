@@ -29,21 +29,7 @@ const PageHeader = () => (
       <p className="text-[10px] sm:text-xs text-gray-600 font-medium mt-0.5">Manage your account settings and webhook configuration</p>
     </div>
     <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-      <div className="flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-xl shadow-xs cursor-pointer hover:bg-gray-50 w-full sm:w-auto">
-        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
-          <svg width={14} sm:width={16} height={14} sm:height={16} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}>
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-[11px] sm:text-xs font-bold text-gray-900 truncate">Demo Store</div>
-          <div className="text-[9px] sm:text-[11px] text-gray-400">MID: M12345678</div>
-        </div>
-        <svg width={12} sm:width={14} height={12} sm:height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400 shrink-0">
-          <path d="M19 9l-7 7-7-7"/>
-        </svg>
-      </div>
+      
     </div>
   </div>
 );

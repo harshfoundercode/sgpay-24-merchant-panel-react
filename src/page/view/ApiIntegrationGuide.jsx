@@ -835,13 +835,13 @@ export default function ApiIntegrationGuide() {
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {/* date range */}
-          <DateRangePicker 
+          {/* <DateRangePicker 
             onDateChange={handleDateChange}
             placeholder="14 May, 2025 - 14 May, 2025"
-          />
+          /> */}
 
           {/* merchant dropdown */}
-          <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-50 transition-colors shrink-0">
+          {/* <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-50 transition-colors shrink-0">
             <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center shrink-0">
               <Store size={12} sm:size={13} className="text-white" />
             </div>
@@ -850,7 +850,7 @@ export default function ApiIntegrationGuide() {
               <p className="text-[9px] sm:text-[10px] text-gray-400 leading-tight">MID: {merchantId}</p>
             </div>
             <ChevronDown size={11} sm:size={12} className="text-gray-400 shrink-0" />
-          </button>
+          </button> */}
         </div>
       </header>
 
