@@ -18,19 +18,19 @@ const transactionService = {
   async getTransactions(params = {}) {
     try {
       console.log('📡 Fetching merchant transactions with params:', params);
-      
+
       const cleanParams = {};
       Object.keys(params).forEach(key => {
         if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
           cleanParams[key] = params[key];
         }
       });
-      
+
       // Use the merchant transactions endpoint
-      const response = await api.get('/merchant/transactions', { 
-        params: cleanParams 
+      const response = await api.get('/merchant/transactions', {
+        params: cleanParams
       });
-      
+
       console.log('✅ Merchant transactions fetched:', response.data);
       return response.data;
     } catch (error) {
@@ -64,7 +64,7 @@ const transactionService = {
   async exportTransactions(params = {}) {
     try {
       console.log('📡 Exporting merchant transactions with params:', params);
-      const response = await api.get('/merchant/transactions/export', { 
+      const response = await api.get('/merchant/transactions/export', {
         params,
         responseType: 'blob'
       });
@@ -108,7 +108,22 @@ const transactionService = {
       console.error('❌ Error returning transaction:', error);
       throw error;
     }
-  }
+  },
+
+  async resendWebHook(order_id) {
+    try {
+      const response = await api.post('/merchant/resend-webhook', {
+        order_id: order_id
+      });
+
+      console.log('✅ resend webhook successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ resend webhook failed:', error);
+      throw error;
+    }
+  },
+
 };
 
 export default transactionService;

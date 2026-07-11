@@ -8,7 +8,7 @@ const API_ENDPOINTS = {
    dashboard: {
     stats: 'merchant/dashboard',
   },
-  profile:'/merchant/profile'
+  profile:'/merchant/profile',
 };
 
 // Helper function to get full URL

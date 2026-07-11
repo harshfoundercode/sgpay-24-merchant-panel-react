@@ -92,156 +92,188 @@
 //   const netAmount = parseFloat(txn.amount) - parseFloat(txn.charges || 0);
 
 //   // ─── PDF Export Function for Single Transaction ────────────────────────────
-//   const exportTransactionPDF = () => {
-//     try {
-//       const doc = new jsPDF('p', 'mm', 'a4');
-//       const pageWidth = doc.internal.pageSize.getWidth();
-//       const pageHeight = doc.internal.pageSize.getHeight();
-      
-//       // Header with Logo Area
-//       doc.setFillColor(255, 255, 255);
-//       doc.rect(0, 0, pageWidth, pageHeight, 'F');
-      
-//       doc.setTextColor(255, 255, 255);
-//       doc.setFontSize(22);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text('PAYMENT RECEIPT', pageWidth / 2, 20, { align: 'center' });
-      
-//       doc.setFontSize(11);
-//       doc.setFont('helvetica', 'normal');
-//       doc.text('Transaction Confirmation', pageWidth / 2, 30, { align: 'center' });
-//       doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 38, { align: 'center' });
-      
-//       // White card for content
-//       doc.setFillColor(255, 255, 255);
-//       doc.rect(10, 50, pageWidth - 20, pageHeight - 80, 'F');
-      
-//       // Status Badge
-//       const statusColors = {
-//         success: [22, 163, 74],
-//         failed: [239, 68, 68],
-//         pending: [245, 158, 11],
-//         processing: [59, 130, 246],
-//         initiated: [234, 179, 8],
-//         returned: [168, 85, 247],
-//       };
-//       const statusColor = statusColors[txn.status?.toLowerCase()] || [107, 114, 128];
-      
-//       doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
-//       const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
-//       const statusWidth = doc.getStringUnitWidth(statusText) * 6 + 16;
-//       doc.roundedRect(pageWidth - 35 - statusWidth, 55, statusWidth, 8, 2, 2, 'F');
-//       doc.setTextColor(255, 255, 255);
-//       doc.setFontSize(8);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text(statusText, pageWidth - 30, 61);
-      
-//       // Title
-//       doc.setTextColor(31, 41, 55);
-//       doc.setFontSize(16);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text('Transaction Details', 20, 70);
-      
-//       // Divider
-//       doc.setDrawColor(229, 231, 235);
-//       doc.line(20, 76, pageWidth - 20, 76);
-      
-//       // Transaction Details in two columns
-//       const details = [
-//         ['Transaction ID', txn.trx_id || txn.id],
-//         ['Order ID', txn.order_id || 'N/A'],
-//         ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
-//         ['Status', txn.status?.toUpperCase() || 'N/A'],
-//         ['Amount', `₹ ${formatCurrency(txn.amount)}`],
-//         ['Charges', `₹ ${formatCurrency(txn.charges || 0)}`],
-//         ['Net Amount', `₹ ${netAmount.toFixed(2)}`],
-//         ['UTR Number', txn.utr || 'N/A'],
-//       ];
-      
-//       let yPos = 86;
-//       details.forEach(([label, value], index) => {
-//         const col = index % 2;
-//         const xPos = col === 0 ? 20 : 110;
-//         const yOffset = Math.floor(index / 2) * 12;
-        
-//         doc.setFontSize(9);
-//         doc.setTextColor(107, 114, 128);
-//         doc.setFont('helvetica', 'bold');
-//         doc.text(`${label}:`, xPos, yPos + yOffset);
-        
-//         doc.setTextColor(31, 41, 55);
-//         doc.setFont('helvetica', 'normal');
-//         const maxWidth = 80;
-//         const valueStr = String(value);
-//         if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
-//           const lines = doc.splitTextToSize(valueStr, maxWidth);
-//           doc.text(lines, xPos + 45, yPos + yOffset);
-//         } else {
-//           doc.text(valueStr, xPos + 45, yPos + yOffset);
-//         }
-//       });
-      
-//       const detailsEndY = yPos + Math.ceil(details.length / 2) * 12 + 8;
-//       doc.line(20, detailsEndY, pageWidth - 20, detailsEndY);
-      
-//       // Beneficiary Details
-//       doc.setTextColor(31, 41, 55);
-//       doc.setFontSize(14);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text('Beneficiary Details', 20, detailsEndY + 12);
-      
-//       doc.line(20, detailsEndY + 18, pageWidth - 20, detailsEndY + 18);
-      
-//       const beneficiary = [
-//         ['Name', txn.bene_name || 'N/A'],
-//         ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
-//         ['IFSC Code', txn.ifsc || 'N/A'],
-//         ['Bank Name', txn.bank_name || 'N/A'],
-//       ];
-      
-//       let benY = detailsEndY + 28;
-//       beneficiary.forEach(([label, value], index) => {
-//         const col = index % 2;
-//         const xPos = col === 0 ? 20 : 110;
-//         const yOffset = Math.floor(index / 2) * 10;
-        
-//         doc.setFontSize(9);
-//         doc.setTextColor(107, 114, 128);
-//         doc.setFont('helvetica', 'bold');
-//         doc.text(`${label}:`, xPos, benY + yOffset);
-        
-//         doc.setTextColor(31, 41, 55);
-//         doc.setFont('helvetica', 'normal');
-//         doc.text(String(value), xPos + 45, benY + yOffset);
-//       });
-      
-//       const benEndY = benY + Math.ceil(beneficiary.length / 2) * 10 + 8;
-//       doc.line(20, benEndY, pageWidth - 20, benEndY);
-      
-//       // Footer
-//       const footerY = benEndY + 15;
-//       doc.setDrawColor(59, 130, 246);
-//       doc.setFillColor(59, 130, 246);
-//       doc.rect(20, footerY, pageWidth - 40, 0.5, 'F');
-      
+//   // ─── PDF Export Function for Single Transaction ────────────────────────────
+// const exportTransactionPDF = () => {
+//   try {
+//     const doc = new jsPDF('p', 'mm', 'a4');
+//     const pageWidth = doc.internal.pageSize.getWidth();
+//     const pageHeight = doc.internal.pageSize.getHeight();
+    
+//     // Clean white background
+//     doc.setFillColor(255, 255, 255);
+//     doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    
+//     // Top accent bar
+//     doc.setFillColor(59, 130, 246);
+//     doc.rect(0, 0, pageWidth, 6, 'F');
+    
+//     // Header
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(24);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('PAYMENT RECEIPT', pageWidth / 2, 25, { align: 'center' });
+    
+//     doc.setFontSize(10);
+//     doc.setFont('helvetica', 'normal');
+//     doc.setTextColor(107, 114, 128);
+//     doc.text('Transaction Confirmation', pageWidth / 2, 33, { align: 'center' });
+    
+//     // Receipt number with divider
+//     doc.setFontSize(9);
+//     doc.setTextColor(156, 163, 175);
+//     doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 41, { align: 'center' });
+    
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(30, 48, pageWidth - 30, 48);
+    
+//     // Status - Plain text without color background
+//     const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
+//     doc.setTextColor(107, 114, 128);
+//     doc.setFontSize(9);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text(`Status: ${statusText}`, pageWidth - 30, 57, { align: 'right' });
+    
+//     // Amount Section
+//     doc.setFillColor(249, 250, 251);
+//     doc.roundedRect(20, 60, pageWidth - 40, 30, 4, 4, 'F');
+    
+//     doc.setTextColor(107, 114, 128);
+//     doc.setFontSize(9);
+//     doc.setFont('helvetica', 'normal');
+//     doc.text('Total Amount', pageWidth / 2, 72, { align: 'center' });
+    
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(22);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text(`Rs. ${formatCurrency(txn.amount)}`, pageWidth / 2, 86, { align: 'center' });
+    
+//     // Transaction Details Section
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(13);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('Transaction Details', 20, 110);
+    
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, 114, pageWidth - 20, 114);
+    
+//     // Details in clean rows
+//     const details = [
+//       ['Transaction ID', txn.trx_id || txn.id],
+//       ['Order ID', txn.order_id || 'N/A'],
+//       ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
+//       ['UTR Number', txn.utr || 'N/A'],
+//     ];
+    
+//     let yPos = 124;
+//     details.forEach(([label, value]) => {
+//       doc.setFontSize(9);
 //       doc.setTextColor(107, 114, 128);
-//       doc.setFontSize(8);
-//       doc.setFont('helvetica', 'italic');
-//       doc.text('This is a system generated receipt. This serves as a confirmation of your transaction.', pageWidth / 2, footerY + 12, { align: 'center' });
+//       doc.setFont('helvetica', 'bold');
+//       doc.text(label, 20, yPos);
       
-//       doc.setTextColor(156, 163, 175);
-//       doc.setFontSize(7);
+//       doc.setTextColor(31, 41, 55);
 //       doc.setFont('helvetica', 'normal');
-//       doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 20, { align: 'center' });
-//       doc.text(`Receipt ID: ${txn.trx_id || txn.id}`, pageWidth / 2, footerY + 27, { align: 'center' });
+//       const maxWidth = 120;
+//       const valueStr = String(value);
+//       if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
+//         const lines = doc.splitTextToSize(valueStr, maxWidth);
+//         doc.text(lines, 80, yPos);
+//       } else {
+//         doc.text(valueStr, 80, yPos);
+//       }
+//       yPos += 8;
+//     });
+    
+//     // Divider
+//     yPos += 4;
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, yPos, pageWidth - 20, yPos);
+//     yPos += 8;
+    
+//     // Amount Breakdown
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(11);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('Amount Breakdown', 20, yPos);
+//     yPos += 6;
+    
+//     const amountDetails = [
+//       ['Subtotal', `Rs. ${formatCurrency(txn.amount)}`],
+//       ['Charges', `Rs. ${formatCurrency(txn.charges || 0)}`],
+//       ['Net Amount', `Rs. ${netAmount.toFixed(2)}`],
+//     ];
+    
+//     amountDetails.forEach(([label, value], index) => {
+//       const isLast = index === amountDetails.length - 1;
+//       doc.setFontSize(9);
       
-//       // Save
-//       doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
-//     } catch (error) {
-//       console.error('Error generating PDF:', error);
-//       alert('Failed to generate PDF. Please try again.');
-//     }
-//   };
+//       if (isLast) {
+//         doc.setTextColor(31, 41, 55);
+//         doc.setFont('helvetica', 'bold');
+//       } else {
+//         doc.setTextColor(107, 114, 128);
+//         doc.setFont('helvetica', 'normal');
+//       }
+      
+//       doc.text(label, 30, yPos + 6);
+//       doc.text(value, pageWidth - 35, yPos + 6, { align: 'right' });
+//       yPos += 7;
+//     });
+    
+//     // Divider
+//     yPos += 4;
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, yPos, pageWidth - 20, yPos);
+//     yPos += 8;
+    
+//     // Beneficiary Section
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(11);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('Beneficiary Details', 20, yPos);
+//     yPos += 6;
+    
+//     const beneficiary = [
+//       ['Name', txn.bene_name || 'N/A'],
+//       ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
+//       ['IFSC Code', txn.ifsc || 'N/A'],
+//       ['Bank Name', txn.bank_name || 'N/A'],
+//     ];
+    
+//     beneficiary.forEach(([label, value]) => {
+//       doc.setFontSize(9);
+//       doc.setTextColor(107, 114, 128);
+//       doc.setFont('helvetica', 'bold');
+//       doc.text(label, 30, yPos + 6);
+      
+//       doc.setTextColor(31, 41, 55);
+//       doc.setFont('helvetica', 'normal');
+//       doc.text(String(value), 80, yPos + 6);
+//       yPos += 7;
+//     });
+    
+//     // Footer
+//     const footerY = pageHeight - 30;
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, footerY, pageWidth - 20, footerY);
+    
+//     doc.setTextColor(156, 163, 175);
+//     doc.setFontSize(8);
+//     doc.setFont('helvetica', 'italic');
+//     doc.text('This is a system generated receipt.', pageWidth / 2, footerY + 8, { align: 'center' });
+    
+//     doc.setFontSize(7);
+//     doc.setFont('helvetica', 'normal');
+//     doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 15, { align: 'center' });
+    
+//     // Save
+//     doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
+//   } catch (error) {
+//     console.error('Error generating PDF:', error);
+//     alert('Failed to generate PDF. Please try again.');
+//   }
+// };
+
 
 //   return (
 //     <div className="p-3 sm:p-5 font-sans">
@@ -579,24 +611,31 @@
 //       const pageWidth = doc.internal.pageSize.getWidth();
 //       const pageHeight = doc.internal.pageSize.getHeight();
       
-//       // Header with gradient effect
+//       // Clean white background
+//       doc.setFillColor(255, 255, 255);
+//       doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+//       // Top accent bar
 //       doc.setFillColor(59, 130, 246);
-//       doc.rect(0, 0, pageWidth, 40, 'F');
+//       doc.rect(0, 0, pageWidth, 5, 'F');
       
-//       doc.setTextColor(255, 255, 255);
-//       doc.setFontSize(20);
+//       // Header
+//       doc.setTextColor(31, 41, 55);
+//       doc.setFontSize(22);
 //       doc.setFont('helvetica', 'bold');
-//       doc.text('Payout History Report', pageWidth / 2, 18, { align: 'center' });
+//       doc.text('Payout History Report', pageWidth / 2, 22, { align: 'center' });
       
-//       doc.setFontSize(10);
+//       doc.setFontSize(9);
+//       doc.setTextColor(107, 114, 128);
 //       doc.setFont('helvetica', 'normal');
 //       const filterText = `Status: ${statusFilter} | Date: ${dateRange ? `${dateRange.startFormatted} to ${dateRange.endFormatted}` : 'All Time'}`;
-//       doc.text(filterText, pageWidth / 2, 28, { align: 'center' });
-//       doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 35, { align: 'center' });
+//       doc.text(filterText, pageWidth / 2, 30, { align: 'center' });
+//       doc.setTextColor(156, 163, 175);
+//       doc.setFontSize(8);
+//       doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 36, { align: 'center' });
       
-//       // White content area - FULL WIDTH
-//       doc.setFillColor(255, 255, 255);
-//       doc.rect(5, 45, pageWidth - 10, pageHeight - 60, 'F');
+//       doc.setDrawColor(229, 231, 235);
+//       doc.line(20, 40, pageWidth - 20, 40);
       
 //       // Stats Summary Cards
 //       const statsData = [
@@ -608,45 +647,41 @@
 //         { label: 'Returned', value: stats.returned || 0, color: [168, 85, 247] },
 //       ];
       
-//       const cardWidth = (pageWidth - 20) / 6 - 3;
+//       const cardWidth = (pageWidth - 40) / 6;
 //       statsData.forEach((stat, index) => {
-//         const xPos = 10 + index * (cardWidth + 3);
+//         const xPos = 20 + index * (cardWidth + 2);
         
 //         // Card background
-//         doc.setFillColor(248, 250, 252);
-//         doc.roundedRect(xPos, 55, cardWidth, 18, 2, 2, 'F');
-        
-//         // Border
-//         doc.setDrawColor(229, 231, 235);
-//         doc.roundedRect(xPos, 55, cardWidth, 18, 2, 2, 'S');
+//         doc.setFillColor(249, 250, 251);
+//         doc.roundedRect(xPos, 47, cardWidth, 16, 2, 2, 'F');
         
 //         doc.setTextColor(107, 114, 128);
 //         doc.setFontSize(7);
 //         doc.setFont('helvetica', 'bold');
-//         doc.text(stat.label, xPos + cardWidth / 2, 62, { align: 'center' });
+//         doc.text(stat.label, xPos + cardWidth / 2, 54, { align: 'center' });
         
 //         doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
 //         doc.setFontSize(10);
 //         doc.setFont('helvetica', 'bold');
-//         doc.text(String(stat.value), xPos + cardWidth / 2, 71, { align: 'center' });
+//         doc.text(String(stat.value), xPos + cardWidth / 2, 62, { align: 'center' });
 //       });
       
-//       // Table - FULL WIDTH
+//       // Table
 //       const tableData = allPayouts.map(txn => [
 //         txn.trx_id || txn.id,
 //         formatDate(txn.created_at),
 //         txn.bene_name || 'N/A',
 //         txn.ifsc || 'N/A',
 //         txn.bank_name || 'N/A',
-//         `₹${formatCurrency(txn.amount)}`,
-//         `₹${formatCurrency(txn.charges || 0)}`,
+//         `Rs.${formatCurrency(txn.amount)}`,
+//         `Rs.${formatCurrency(txn.charges || 0)}`,
 //         txn.order_id || 'N/A',
 //         txn.status?.toUpperCase() || 'N/A',
 //         txn.utr || '–',
 //       ]);
       
 //       autoTable(doc, {
-//         startY: 80,
+//         startY: 70,
 //         head: [['ID', 'Date', 'Beneficiary', 'IFSC', 'Bank', 'Amount', 'Charges', 'Order ID', 'Status', 'UTR']],
 //         body: tableData,
 //         theme: 'striped',
@@ -672,7 +707,7 @@
 //           8: { cellWidth: 'auto', halign: 'center' },
 //           9: { cellWidth: 'auto', halign: 'center' },
 //         },
-//         margin: { left: 10, right: 10 },
+//         margin: { left: 15, right: 15 },
 //         pageBreak: 'auto',
 //         rowPageBreak: 'avoid',
 //         tableWidth: 'auto',
@@ -680,25 +715,20 @@
 //           overflow: 'linebreak',
 //           cellPadding: 2,
 //         },
+//         didDrawPage: function(data) {
+//           // Footer on each page
+//           const footerY = doc.internal.pageSize.getHeight() - 10;
+//           doc.setDrawColor(229, 231, 235);
+//           doc.line(20, footerY - 5, pageWidth - 20, footerY - 5);
+//           doc.setTextColor(156, 163, 175);
+//           doc.setFontSize(7);
+//           doc.setFont('helvetica', 'italic');
+//           doc.text('This is a system generated report.', pageWidth / 2, footerY + 2, { align: 'center' });
+//           doc.setFontSize(6);
+//           doc.setFont('helvetica', 'normal');
+//           doc.text(`Page ${data.pageNumber}`, pageWidth - 30, footerY + 2);
+//         }
 //       });
-      
-//       // Footer
-//       const finalY = doc.lastAutoTable.finalY + 8;
-      
-//       doc.setDrawColor(59, 130, 246);
-//       doc.setFillColor(59, 130, 246);
-//       doc.rect(10, finalY, pageWidth - 20, 0.5, 'F');
-      
-//       doc.setTextColor(107, 114, 128);
-//       doc.setFontSize(8);
-//       doc.setFont('helvetica', 'italic');
-//       doc.text(`Total ${allPayouts.length} transactions displayed.`, pageWidth / 2, finalY + 8, { align: 'center' });
-      
-//       doc.setTextColor(156, 163, 175);
-//       doc.setFontSize(7);
-//       doc.setFont('helvetica', 'normal');
-//       doc.text('This is a system generated report.', pageWidth / 2, finalY + 14, { align: 'center' });
-//       doc.text(`Report ID: ${new Date().getTime()}`, pageWidth / 2, finalY + 20, { align: 'center' });
       
 //       // Save
 //       doc.save(`Payout_History_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -709,154 +739,184 @@
 //   };
 
 //   // ─── PDF Export Function for Single Transaction from Menu ──────────────────
-//   const exportSingleTransactionPDF = (txn) => {
-//     try {
-//       const doc = new jsPDF('p', 'mm', 'a4');
-//       const pageWidth = doc.internal.pageSize.getWidth();
-//       const pageHeight = doc.internal.pageSize.getHeight();
-      
-//       // Header with gradient
-//       doc.setFillColor(59, 130, 246);
-//       doc.rect(0, 0, pageWidth, 45, 'F');
-      
-//       doc.setTextColor(255, 255, 255);
-//       doc.setFontSize(20);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text('PAYMENT RECEIPT', pageWidth / 2, 18, { align: 'center' });
-      
-//       doc.setFontSize(10);
-//       doc.setFont('helvetica', 'normal');
-//       doc.text('Transaction Confirmation', pageWidth / 2, 28, { align: 'center' });
-//       doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 36, { align: 'center' });
-      
-//       // White content - FULL WIDTH
-//       doc.setFillColor(255, 255, 255);
-//       doc.rect(8, 50, pageWidth - 16, pageHeight - 80, 'F');
-      
-//       // Status Badge
-//       const statusColors = {
-//         success: [22, 163, 74],
-//         failed: [239, 68, 68],
-//         pending: [245, 158, 11],
-//         processing: [59, 130, 246],
-//         initiated: [234, 179, 8],
-//         returned: [168, 85, 247],
-//       };
-//       const statusColor = statusColors[txn.status?.toLowerCase()] || [107, 114, 128];
-      
-//       doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
-//       const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
-//       const statusWidth = doc.getStringUnitWidth(statusText) * 7 + 16;
-//       doc.roundedRect(pageWidth - 35 - statusWidth, 55, statusWidth, 8, 2, 2, 'F');
-//       doc.setTextColor(255, 255, 255);
-//       doc.setFontSize(8);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text(statusText, pageWidth - 30, 61);
-      
-//       // Transaction Details Title
-//       doc.setTextColor(31, 41, 55);
-//       doc.setFontSize(14);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text('Transaction Details', 18, 70);
-      
-//       doc.setDrawColor(229, 231, 235);
-//       doc.line(18, 76, pageWidth - 18, 76);
-      
-//       // Details - FULL WIDTH
-//       const details = [
-//         ['Transaction ID', txn.trx_id || txn.id],
-//         ['Order ID', txn.order_id || 'N/A'],
-//         ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
-//         ['Status', txn.status?.toUpperCase() || 'N/A'],
-//         ['Amount', `₹ ${formatCurrency(txn.amount)}`],
-//         ['Charges', `₹ ${formatCurrency(txn.charges || 0)}`],
-//         ['Net Amount', `₹ ${(parseFloat(txn.amount) - parseFloat(txn.charges || 0)).toFixed(2)}`],
-//         ['UTR Number', txn.utr || 'N/A'],
-//       ];
-      
-//       let yPos = 86;
-//       details.forEach(([label, value], index) => {
-//         const col = index % 2;
-//         const xPos = col === 0 ? 18 : 110;
-//         const yOffset = Math.floor(index / 2) * 12;
-        
-//         doc.setFontSize(9);
-//         doc.setTextColor(107, 114, 128);
-//         doc.setFont('helvetica', 'bold');
-//         doc.text(`${label}:`, xPos, yPos + yOffset);
-        
-//         doc.setTextColor(31, 41, 55);
-//         doc.setFont('helvetica', 'normal');
-//         const maxWidth = 85;
-//         const valueStr = String(value);
-//         if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
-//           const lines = doc.splitTextToSize(valueStr, maxWidth);
-//           doc.text(lines, xPos + 45, yPos + yOffset);
-//         } else {
-//           doc.text(valueStr, xPos + 45, yPos + yOffset);
-//         }
-//       });
-      
-//       const detailsEndY = yPos + Math.ceil(details.length / 2) * 12 + 8;
-//       doc.line(18, detailsEndY, pageWidth - 18, detailsEndY);
-      
-//       // Beneficiary Details
-//       doc.setTextColor(31, 41, 55);
-//       doc.setFontSize(14);
-//       doc.setFont('helvetica', 'bold');
-//       doc.text('Beneficiary Details', 18, detailsEndY + 12);
-      
-//       doc.line(18, detailsEndY + 18, pageWidth - 18, detailsEndY + 18);
-      
-//       const beneficiary = [
-//         ['Name', txn.bene_name || 'N/A'],
-//         ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
-//         ['IFSC Code', txn.ifsc || 'N/A'],
-//         ['Bank Name', txn.bank_name || 'N/A'],
-//       ];
-      
-//       let benY = detailsEndY + 28;
-//       beneficiary.forEach(([label, value], index) => {
-//         const col = index % 2;
-//         const xPos = col === 0 ? 18 : 110;
-//         const yOffset = Math.floor(index / 2) * 10;
-        
-//         doc.setFontSize(9);
-//         doc.setTextColor(107, 114, 128);
-//         doc.setFont('helvetica', 'bold');
-//         doc.text(`${label}:`, xPos, benY + yOffset);
-        
-//         doc.setTextColor(31, 41, 55);
-//         doc.setFont('helvetica', 'normal');
-//         doc.text(String(value), xPos + 45, benY + yOffset);
-//       });
-      
-//       const benEndY = benY + Math.ceil(beneficiary.length / 2) * 10 + 8;
-//       doc.line(18, benEndY, pageWidth - 18, benEndY);
-      
-//       // Footer
-//       const footerY = benEndY + 15;
-//       doc.setDrawColor(59, 130, 246);
-//       doc.setFillColor(59, 130, 246);
-//       doc.rect(18, footerY, pageWidth - 36, 0.5, 'F');
-      
+//   // ─── PDF Export Function for Single Transaction from Menu ──────────────────
+// const exportSingleTransactionPDF = (txn) => {
+//   try {
+//     // Calculate net amount inside the function
+//     const netAmount = parseFloat(txn.amount) - parseFloat(txn.charges || 0);
+    
+//     const doc = new jsPDF('p', 'mm', 'a4');
+//     const pageWidth = doc.internal.pageSize.getWidth();
+//     const pageHeight = doc.internal.pageSize.getHeight();
+    
+//     // Clean white background
+//     doc.setFillColor(255, 255, 255);
+//     doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    
+//     // Top accent bar
+//     doc.setFillColor(59, 130, 246);
+//     doc.rect(0, 0, pageWidth, 6, 'F');
+    
+//     // Header
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(24);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('PAYMENT RECEIPT', pageWidth / 2, 25, { align: 'center' });
+    
+//     doc.setFontSize(10);
+//     doc.setFont('helvetica', 'normal');
+//     doc.setTextColor(107, 114, 128);
+//     doc.text('Transaction Confirmation', pageWidth / 2, 33, { align: 'center' });
+    
+//     doc.setFontSize(9);
+//     doc.setTextColor(156, 163, 175);
+//     doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 41, { align: 'center' });
+    
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(30, 48, pageWidth - 30, 48);
+    
+//     // Status - Plain text without color background
+//     const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
+//     doc.setTextColor(107, 114, 128);
+//     doc.setFontSize(9);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text(`Status: ${statusText}`, pageWidth - 30, 57, { align: 'right' });
+    
+//     // Amount Section
+//     doc.setFillColor(249, 250, 251);
+//     doc.roundedRect(20, 60, pageWidth - 40, 30, 4, 4, 'F');
+    
+//     doc.setTextColor(107, 114, 128);
+//     doc.setFontSize(9);
+//     doc.setFont('helvetica', 'normal');
+//     doc.text('Total Amount', pageWidth / 2, 72, { align: 'center' });
+    
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(22);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text(`Rs. ${formatCurrency(txn.amount)}`, pageWidth / 2, 86, { align: 'center' });
+    
+//     // Transaction Details Section
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(13);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('Transaction Details', 20, 110);
+    
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, 114, pageWidth - 20, 114);
+    
+//     const details = [
+//       ['Transaction ID', txn.trx_id || txn.id],
+//       ['Order ID', txn.order_id || 'N/A'],
+//       ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
+//       ['UTR Number', txn.utr || 'N/A'],
+//     ];
+    
+//     let yPos = 124;
+//     details.forEach(([label, value]) => {
+//       doc.setFontSize(9);
 //       doc.setTextColor(107, 114, 128);
-//       doc.setFontSize(8);
-//       doc.setFont('helvetica', 'italic');
-//       doc.text('This is a system generated receipt. This serves as a confirmation of your transaction.', pageWidth / 2, footerY + 12, { align: 'center' });
+//       doc.setFont('helvetica', 'bold');
+//       doc.text(label, 20, yPos);
       
-//       doc.setTextColor(156, 163, 175);
-//       doc.setFontSize(7);
+//       doc.setTextColor(31, 41, 55);
 //       doc.setFont('helvetica', 'normal');
-//       doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 20, { align: 'center' });
-//       doc.text(`Receipt ID: ${txn.trx_id || txn.id}`, pageWidth / 2, footerY + 27, { align: 'center' });
+//       const maxWidth = 120;
+//       const valueStr = String(value);
+//       if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
+//         const lines = doc.splitTextToSize(valueStr, maxWidth);
+//         doc.text(lines, 80, yPos);
+//       } else {
+//         doc.text(valueStr, 80, yPos);
+//       }
+//       yPos += 8;
+//     });
+    
+//     yPos += 4;
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, yPos, pageWidth - 20, yPos);
+//     yPos += 8;
+    
+//     // Amount Breakdown
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(11);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('Amount Breakdown', 20, yPos);
+//     yPos += 6;
+    
+//     const amountDetails = [
+//       ['Subtotal', `Rs. ${formatCurrency(txn.amount)}`],
+//       ['Charges', `Rs. ${formatCurrency(txn.charges || 0)}`],
+//       ['Net Amount', `Rs. ${netAmount.toFixed(2)}`],
+//     ];
+    
+//     amountDetails.forEach(([label, value], index) => {
+//       const isLast = index === amountDetails.length - 1;
+//       doc.setFontSize(9);
       
-//       doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
-//     } catch (error) {
-//       console.error('Error generating PDF:', error);
-//       alert('Failed to generate PDF. Please try again.');
-//     }
-//   };
+//       if (isLast) {
+//         doc.setTextColor(31, 41, 55);
+//         doc.setFont('helvetica', 'bold');
+//       } else {
+//         doc.setTextColor(107, 114, 128);
+//         doc.setFont('helvetica', 'normal');
+//       }
+      
+//       doc.text(label, 30, yPos + 6);
+//       doc.text(value, pageWidth - 35, yPos + 6, { align: 'right' });
+//       yPos += 7;
+//     });
+    
+//     yPos += 4;
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, yPos, pageWidth - 20, yPos);
+//     yPos += 8;
+    
+//     // Beneficiary Section
+//     doc.setTextColor(31, 41, 55);
+//     doc.setFontSize(11);
+//     doc.setFont('helvetica', 'bold');
+//     doc.text('Beneficiary Details', 20, yPos);
+//     yPos += 6;
+    
+//     const beneficiary = [
+//       ['Name', txn.bene_name || 'N/A'],
+//       ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
+//       ['IFSC Code', txn.ifsc || 'N/A'],
+//       ['Bank Name', txn.bank_name || 'N/A'],
+//     ];
+    
+//     beneficiary.forEach(([label, value]) => {
+//       doc.setFontSize(9);
+//       doc.setTextColor(107, 114, 128);
+//       doc.setFont('helvetica', 'bold');
+//       doc.text(label, 30, yPos + 6);
+      
+//       doc.setTextColor(31, 41, 55);
+//       doc.setFont('helvetica', 'normal');
+//       doc.text(String(value), 80, yPos + 6);
+//       yPos += 7;
+//     });
+    
+//     // Footer
+//     const footerY = pageHeight - 30;
+//     doc.setDrawColor(229, 231, 235);
+//     doc.line(20, footerY, pageWidth - 20, footerY);
+    
+//     doc.setTextColor(156, 163, 175);
+//     doc.setFontSize(8);
+//     doc.setFont('helvetica', 'italic');
+//     doc.text('This is a system generated receipt.', pageWidth / 2, footerY + 8, { align: 'center' });
+    
+//     doc.setFontSize(7);
+//     doc.setFont('helvetica', 'normal');
+//     doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 15, { align: 'center' });
+    
+//     doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
+//   } catch (error) {
+//     console.error('Error generating PDF:', error);
+//     alert('Failed to generate PDF. Please try again.');
+//   }};
 
 //   const allPayouts = transactionData.data || [];
 //   const totalItems = transactionData.total || 0;
@@ -1318,188 +1378,202 @@ const TransactionDetails = ({ txn, onBack }) => {
   const netAmount = parseFloat(txn.amount) - parseFloat(txn.charges || 0);
 
   // ─── PDF Export Function for Single Transaction ────────────────────────────
-  // ─── PDF Export Function for Single Transaction ────────────────────────────
-const exportTransactionPDF = () => {
-  try {
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    
-    // Clean white background
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, pageWidth, pageHeight, 'F');
-    
-    // Top accent bar
-    doc.setFillColor(59, 130, 246);
-    doc.rect(0, 0, pageWidth, 6, 'F');
-    
-    // Header
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT RECEIPT', pageWidth / 2, 25, { align: 'center' });
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128);
-    doc.text('Transaction Confirmation', pageWidth / 2, 33, { align: 'center' });
-    
-    // Receipt number with divider
-    doc.setFontSize(9);
-    doc.setTextColor(156, 163, 175);
-    doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 41, { align: 'center' });
-    
-    doc.setDrawColor(229, 231, 235);
-    doc.line(30, 48, pageWidth - 30, 48);
-    
-    // Status - Plain text without color background
-    const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
-    doc.setTextColor(107, 114, 128);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Status: ${statusText}`, pageWidth - 30, 57, { align: 'right' });
-    
-    // Amount Section
-    doc.setFillColor(249, 250, 251);
-    doc.roundedRect(20, 60, pageWidth - 40, 30, 4, 4, 'F');
-    
-    doc.setTextColor(107, 114, 128);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Total Amount', pageWidth / 2, 72, { align: 'center' });
-    
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(22);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Rs. ${formatCurrency(txn.amount)}`, pageWidth / 2, 86, { align: 'center' });
-    
-    // Transaction Details Section
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Transaction Details', 20, 110);
-    
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, 114, pageWidth - 20, 114);
-    
-    // Details in clean rows
-    const details = [
-      ['Transaction ID', txn.trx_id || txn.id],
-      ['Order ID', txn.order_id || 'N/A'],
-      ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
-      ['UTR Number', txn.utr || 'N/A'],
-    ];
-    
-    let yPos = 124;
-    details.forEach(([label, value]) => {
-      doc.setFontSize(9);
-      doc.setTextColor(107, 114, 128);
+  const exportTransactionPDF = () => {
+    try {
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      
+      // Clean white background
+      doc.setFillColor(255, 255, 255);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      // Top accent bar
+      doc.setFillColor(59, 130, 246);
+      doc.rect(0, 0, pageWidth, 6, 'F');
+      
+      // Header
+      doc.setTextColor(31, 41, 55);
+      doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
-      doc.text(label, 20, yPos);
+      doc.text('PAYMENT RECEIPT', pageWidth / 2, 25, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(107, 114, 128);
+      doc.text('Transaction Confirmation', pageWidth / 2, 33, { align: 'center' });
+      
+      doc.setFontSize(9);
+      doc.setTextColor(156, 163, 175);
+      doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 41, { align: 'center' });
+      
+      doc.setDrawColor(229, 231, 235);
+      doc.line(30, 48, pageWidth - 30, 48);
+      
+      // Status - Plain text without color background
+      const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Status: ${statusText}`, pageWidth - 30, 57, { align: 'right' });
+      
+      // Amount Section
+      doc.setFillColor(249, 250, 251);
+      doc.roundedRect(20, 60, pageWidth - 40, 30, 4, 4, 'F');
+      
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Total Amount', pageWidth / 2, 72, { align: 'center' });
       
       doc.setTextColor(31, 41, 55);
-      doc.setFont('helvetica', 'normal');
-      const maxWidth = 120;
-      const valueStr = String(value);
-      if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
-        const lines = doc.splitTextToSize(valueStr, maxWidth);
-        doc.text(lines, 80, yPos);
-      } else {
-        doc.text(valueStr, 80, yPos);
-      }
-      yPos += 8;
-    });
-    
-    // Divider
-    yPos += 4;
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, yPos, pageWidth - 20, yPos);
-    yPos += 8;
-    
-    // Amount Breakdown
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Amount Breakdown', 20, yPos);
-    yPos += 6;
-    
-    const amountDetails = [
-      ['Subtotal', `Rs. ${formatCurrency(txn.amount)}`],
-      ['Charges', `Rs. ${formatCurrency(txn.charges || 0)}`],
-      ['Net Amount', `Rs. ${netAmount.toFixed(2)}`],
-    ];
-    
-    amountDetails.forEach(([label, value], index) => {
-      const isLast = index === amountDetails.length - 1;
-      doc.setFontSize(9);
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Rs. ${formatCurrency(txn.amount)}`, pageWidth / 2, 86, { align: 'center' });
       
-      if (isLast) {
-        doc.setTextColor(31, 41, 55);
-        doc.setFont('helvetica', 'bold');
-      } else {
+      // Transaction Details Section
+      doc.setTextColor(31, 41, 55);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Transaction Details', 20, 110);
+      
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, 114, pageWidth - 20, 114);
+      
+      // Details in clean rows
+      const details = [
+        ['Transaction ID', txn.trx_id || txn.id],
+        ['Order ID', txn.order_id || 'N/A'],
+        ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
+        ['UTR Number', txn.utr || 'N/A'],
+      ];
+      
+      let yPos = 124;
+      details.forEach(([label, value]) => {
+        doc.setFontSize(9);
         doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 20, yPos);
+        
+        doc.setTextColor(31, 41, 55);
         doc.setFont('helvetica', 'normal');
-      }
+        const maxWidth = 120;
+        const valueStr = String(value);
+        if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
+          const lines = doc.splitTextToSize(valueStr, maxWidth);
+          doc.text(lines, 80, yPos);
+        } else {
+          doc.text(valueStr, 80, yPos);
+        }
+        yPos += 8;
+      });
       
-      doc.text(label, 30, yPos + 6);
-      doc.text(value, pageWidth - 35, yPos + 6, { align: 'right' });
-      yPos += 7;
-    });
-    
-    // Divider
-    yPos += 4;
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, yPos, pageWidth - 20, yPos);
-    yPos += 8;
-    
-    // Beneficiary Section
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Beneficiary Details', 20, yPos);
-    yPos += 6;
-    
-    const beneficiary = [
-      ['Name', txn.bene_name || 'N/A'],
-      ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
-      ['IFSC Code', txn.ifsc || 'N/A'],
-      ['Bank Name', txn.bank_name || 'N/A'],
-    ];
-    
-    beneficiary.forEach(([label, value]) => {
-      doc.setFontSize(9);
-      doc.setTextColor(107, 114, 128);
-      doc.setFont('helvetica', 'bold');
-      doc.text(label, 30, yPos + 6);
+      // Divider
+      yPos += 4;
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, yPos, pageWidth - 20, yPos);
+      yPos += 8;
       
+      // Amount Breakdown
       doc.setTextColor(31, 41, 55);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Amount Breakdown', 20, yPos);
+      yPos += 6;
+      
+      const amountDetails = [
+        ['Subtotal', `Rs. ${formatCurrency(txn.amount)}`],
+        ['Charges', `Rs. ${formatCurrency(txn.charges || 0)}`],
+        ['Net Amount', `Rs. ${netAmount.toFixed(2)}`],
+      ];
+      
+      amountDetails.forEach(([label, value], index) => {
+        const isLast = index === amountDetails.length - 1;
+        doc.setFontSize(9);
+        
+        if (isLast) {
+          doc.setTextColor(31, 41, 55);
+          doc.setFont('helvetica', 'bold');
+        } else {
+          doc.setTextColor(107, 114, 128);
+          doc.setFont('helvetica', 'normal');
+        }
+        
+        doc.text(label, 30, yPos + 6);
+        doc.text(value, pageWidth - 35, yPos + 6, { align: 'right' });
+        yPos += 7;
+      });
+      
+      // Divider
+      yPos += 4;
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, yPos, pageWidth - 20, yPos);
+      yPos += 8;
+      
+      // Beneficiary Section
+      doc.setTextColor(31, 41, 55);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Beneficiary Details', 20, yPos);
+      yPos += 6;
+      
+      const beneficiary = [
+        ['Name', txn.bene_name || 'N/A'],
+        ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
+        ['IFSC Code', txn.ifsc || 'N/A'],
+        ['Bank Name', txn.bank_name || 'N/A'],
+      ];
+      
+      beneficiary.forEach(([label, value]) => {
+        doc.setFontSize(9);
+        doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 30, yPos + 6);
+        
+        doc.setTextColor(31, 41, 55);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(value), 80, yPos + 6);
+        yPos += 7;
+      });
+      
+      // Footer
+      const footerY = pageHeight - 30;
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, footerY, pageWidth - 20, footerY);
+      
+      doc.setTextColor(156, 163, 175);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text('This is a system generated receipt.', pageWidth / 2, footerY + 8, { align: 'center' });
+      
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
-      doc.text(String(value), 80, yPos + 6);
-      yPos += 7;
-    });
-    
-    // Footer
-    const footerY = pageHeight - 30;
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, footerY, pageWidth - 20, footerY);
-    
-    doc.setTextColor(156, 163, 175);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.text('This is a system generated receipt.', pageWidth / 2, footerY + 8, { align: 'center' });
-    
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 15, { align: 'center' });
-    
-    // Save
-    doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    alert('Failed to generate PDF. Please try again.');
-  }
-};
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 15, { align: 'center' });
+      
+      // Save
+      doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
 
+  // ─── Webhook Handler ─────────────────────────────────────────────────────
+  const handleResendWebhook = async (orderId) => {
+    if (!orderId) {
+      alert('Order ID not found for this transaction');
+      return;
+    }
+
+    try {
+      await transactionService.resendWebHook(orderId);
+      alert(`Webhook resent successfully for order ${orderId}`);
+      console.log('✅ Webhook resent successfully for order:', orderId);
+    } catch (error) {
+      console.error('❌ Failed to resend webhook:', error);
+      alert('Failed to resend webhook. Please try again.');
+    }
+  };
 
   return (
     <div className="p-3 sm:p-5 font-sans">
@@ -1511,6 +1585,18 @@ const exportTransactionPDF = () => {
             <path d="M9 18l6-6-6-6"/>
           </svg>
           <span className="text-gray-800 font-semibold">Transaction Details</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleResendWebhook(txn.order_id)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium transition-colors border border-blue-200"
+          >
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M4 4v16h16" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M8 12l3 3 8-8" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Resend Webhook
+          </button>
         </div>
       </div>
 
@@ -1699,10 +1785,12 @@ export default function PayoutHistory() {
   const [benSearch, setBenSearch] = useState("");
   const [page, setPage] = useState(1);
   const [openMenu, setOpenMenu] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const [dateRange, setDateRange] = useState(null);
   const [selectedDateRange, setSelectedDateRange] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [webhookLoading, setWebhookLoading] = useState(null);
   const [transactionData, setTransactionData] = useState({
     data: [],
     stats: {
@@ -1830,6 +1918,50 @@ export default function PayoutHistory() {
     return null;
   };
 
+  // ─── Dropdown Menu Handler ──────────────────────────────────────────────
+  const handleMenuToggle = (txnId, event) => {
+    if (openMenu === txnId) {
+      setOpenMenu(null);
+      return;
+    }
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    const dropdownWidth = 160; // w-40 = 160px
+    
+    // Calculate position
+    let left = rect.right - dropdownWidth;
+    let top = rect.bottom + window.scrollY + 4;
+    
+    // Check if dropdown goes off screen
+    if (left < 10) left = 10;
+    if (top + 100 > window.innerHeight + window.scrollY) {
+      top = rect.top + window.scrollY - 100;
+    }
+    
+    setDropdownPosition({ top, left });
+    setOpenMenu(txnId);
+  };
+
+  // ─── Webhook Handler ─────────────────────────────────────────────────────
+  const handleResendWebhook = async (orderId, transactionId) => {
+    if (!orderId) {
+      alert('Order ID not found for this transaction');
+      return;
+    }
+
+    setWebhookLoading(transactionId);
+    try {
+      await transactionService.resendWebHook(orderId);
+      alert(`Webhook resent successfully for order ${orderId}`);
+      console.log('✅ Webhook resent successfully for order:', orderId);
+    } catch (error) {
+      console.error('❌ Failed to resend webhook:', error);
+      alert('Failed to resend webhook. Please try again.');
+    } finally {
+      setWebhookLoading(null);
+    }
+  };
+
   // ─── PDF Export Function for All Transactions ──────────────────────────────
   const exportTransactionsPDF = () => {
     try {
@@ -1865,12 +1997,12 @@ export default function PayoutHistory() {
       
       // Stats Summary Cards
       const statsData = [
-        { label: 'Total', value: stats.all_count || 0, color: [59, 130, 246] },
-        { label: 'Success', value: stats.success || 0, color: [22, 163, 74] },
-        { label: 'Failed', value: stats.failed || 0, color: [239, 68, 68] },
-        { label: 'Processing', value: stats.processing || 0, color: [59, 130, 246] },
-        { label: 'Initiated', value: stats.initiated || 0, color: [234, 179, 8] },
-        { label: 'Returned', value: stats.returned || 0, color: [168, 85, 247] },
+        { label: 'Total', value: transactionData.stats?.all_count || 0, color: [59, 130, 246] },
+        { label: 'Success', value: transactionData.stats?.success || 0, color: [22, 163, 74] },
+        { label: 'Failed', value: transactionData.stats?.failed || 0, color: [239, 68, 68] },
+        { label: 'Processing', value: transactionData.stats?.processing || 0, color: [59, 130, 246] },
+        { label: 'Initiated', value: transactionData.stats?.initiated || 0, color: [234, 179, 8] },
+        { label: 'Returned', value: transactionData.stats?.returned || 0, color: [168, 85, 247] },
       ];
       
       const cardWidth = (pageWidth - 40) / 6;
@@ -1965,184 +2097,184 @@ export default function PayoutHistory() {
   };
 
   // ─── PDF Export Function for Single Transaction from Menu ──────────────────
-  // ─── PDF Export Function for Single Transaction from Menu ──────────────────
-const exportSingleTransactionPDF = (txn) => {
-  try {
-    // Calculate net amount inside the function
-    const netAmount = parseFloat(txn.amount) - parseFloat(txn.charges || 0);
-    
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    
-    // Clean white background
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, pageWidth, pageHeight, 'F');
-    
-    // Top accent bar
-    doc.setFillColor(59, 130, 246);
-    doc.rect(0, 0, pageWidth, 6, 'F');
-    
-    // Header
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT RECEIPT', pageWidth / 2, 25, { align: 'center' });
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128);
-    doc.text('Transaction Confirmation', pageWidth / 2, 33, { align: 'center' });
-    
-    doc.setFontSize(9);
-    doc.setTextColor(156, 163, 175);
-    doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 41, { align: 'center' });
-    
-    doc.setDrawColor(229, 231, 235);
-    doc.line(30, 48, pageWidth - 30, 48);
-    
-    // Status - Plain text without color background
-    const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
-    doc.setTextColor(107, 114, 128);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Status: ${statusText}`, pageWidth - 30, 57, { align: 'right' });
-    
-    // Amount Section
-    doc.setFillColor(249, 250, 251);
-    doc.roundedRect(20, 60, pageWidth - 40, 30, 4, 4, 'F');
-    
-    doc.setTextColor(107, 114, 128);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Total Amount', pageWidth / 2, 72, { align: 'center' });
-    
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(22);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Rs. ${formatCurrency(txn.amount)}`, pageWidth / 2, 86, { align: 'center' });
-    
-    // Transaction Details Section
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Transaction Details', 20, 110);
-    
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, 114, pageWidth - 20, 114);
-    
-    const details = [
-      ['Transaction ID', txn.trx_id || txn.id],
-      ['Order ID', txn.order_id || 'N/A'],
-      ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
-      ['UTR Number', txn.utr || 'N/A'],
-    ];
-    
-    let yPos = 124;
-    details.forEach(([label, value]) => {
-      doc.setFontSize(9);
-      doc.setTextColor(107, 114, 128);
+  const exportSingleTransactionPDF = (txn) => {
+    try {
+      // Calculate net amount inside the function
+      const netAmount = parseFloat(txn.amount) - parseFloat(txn.charges || 0);
+      
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      
+      // Clean white background
+      doc.setFillColor(255, 255, 255);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      // Top accent bar
+      doc.setFillColor(59, 130, 246);
+      doc.rect(0, 0, pageWidth, 6, 'F');
+      
+      // Header
+      doc.setTextColor(31, 41, 55);
+      doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
-      doc.text(label, 20, yPos);
+      doc.text('PAYMENT RECEIPT', pageWidth / 2, 25, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(107, 114, 128);
+      doc.text('Transaction Confirmation', pageWidth / 2, 33, { align: 'center' });
+      
+      doc.setFontSize(9);
+      doc.setTextColor(156, 163, 175);
+      doc.text(`Receipt #: ${txn.trx_id || txn.id}`, pageWidth / 2, 41, { align: 'center' });
+      
+      doc.setDrawColor(229, 231, 235);
+      doc.line(30, 48, pageWidth - 30, 48);
+      
+      // Status - Plain text without color background
+      const statusText = txn.status?.toUpperCase() || 'UNKNOWN';
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Status: ${statusText}`, pageWidth - 30, 57, { align: 'right' });
+      
+      // Amount Section
+      doc.setFillColor(249, 250, 251);
+      doc.roundedRect(20, 60, pageWidth - 40, 30, 4, 4, 'F');
+      
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Total Amount', pageWidth / 2, 72, { align: 'center' });
       
       doc.setTextColor(31, 41, 55);
-      doc.setFont('helvetica', 'normal');
-      const maxWidth = 120;
-      const valueStr = String(value);
-      if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
-        const lines = doc.splitTextToSize(valueStr, maxWidth);
-        doc.text(lines, 80, yPos);
-      } else {
-        doc.text(valueStr, 80, yPos);
-      }
-      yPos += 8;
-    });
-    
-    yPos += 4;
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, yPos, pageWidth - 20, yPos);
-    yPos += 8;
-    
-    // Amount Breakdown
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Amount Breakdown', 20, yPos);
-    yPos += 6;
-    
-    const amountDetails = [
-      ['Subtotal', `Rs. ${formatCurrency(txn.amount)}`],
-      ['Charges', `Rs. ${formatCurrency(txn.charges || 0)}`],
-      ['Net Amount', `Rs. ${netAmount.toFixed(2)}`],
-    ];
-    
-    amountDetails.forEach(([label, value], index) => {
-      const isLast = index === amountDetails.length - 1;
-      doc.setFontSize(9);
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Rs. ${formatCurrency(txn.amount)}`, pageWidth / 2, 86, { align: 'center' });
       
-      if (isLast) {
-        doc.setTextColor(31, 41, 55);
-        doc.setFont('helvetica', 'bold');
-      } else {
+      // Transaction Details Section
+      doc.setTextColor(31, 41, 55);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Transaction Details', 20, 110);
+      
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, 114, pageWidth - 20, 114);
+      
+      const details = [
+        ['Transaction ID', txn.trx_id || txn.id],
+        ['Order ID', txn.order_id || 'N/A'],
+        ['Date & Time', `${formatDate(txn.created_at)} at ${formatTime(txn.created_at)}`],
+        ['UTR Number', txn.utr || 'N/A'],
+      ];
+      
+      let yPos = 124;
+      details.forEach(([label, value]) => {
+        doc.setFontSize(9);
         doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 20, yPos);
+        
+        doc.setTextColor(31, 41, 55);
         doc.setFont('helvetica', 'normal');
-      }
+        const maxWidth = 120;
+        const valueStr = String(value);
+        if (doc.getStringUnitWidth(valueStr) * 9 / 3 > maxWidth) {
+          const lines = doc.splitTextToSize(valueStr, maxWidth);
+          doc.text(lines, 80, yPos);
+        } else {
+          doc.text(valueStr, 80, yPos);
+        }
+        yPos += 8;
+      });
       
-      doc.text(label, 30, yPos + 6);
-      doc.text(value, pageWidth - 35, yPos + 6, { align: 'right' });
-      yPos += 7;
-    });
-    
-    yPos += 4;
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, yPos, pageWidth - 20, yPos);
-    yPos += 8;
-    
-    // Beneficiary Section
-    doc.setTextColor(31, 41, 55);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Beneficiary Details', 20, yPos);
-    yPos += 6;
-    
-    const beneficiary = [
-      ['Name', txn.bene_name || 'N/A'],
-      ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
-      ['IFSC Code', txn.ifsc || 'N/A'],
-      ['Bank Name', txn.bank_name || 'N/A'],
-    ];
-    
-    beneficiary.forEach(([label, value]) => {
-      doc.setFontSize(9);
-      doc.setTextColor(107, 114, 128);
-      doc.setFont('helvetica', 'bold');
-      doc.text(label, 30, yPos + 6);
+      yPos += 4;
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, yPos, pageWidth - 20, yPos);
+      yPos += 8;
       
+      // Amount Breakdown
       doc.setTextColor(31, 41, 55);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Amount Breakdown', 20, yPos);
+      yPos += 6;
+      
+      const amountDetails = [
+        ['Subtotal', `Rs. ${formatCurrency(txn.amount)}`],
+        ['Charges', `Rs. ${formatCurrency(txn.charges || 0)}`],
+        ['Net Amount', `Rs. ${netAmount.toFixed(2)}`],
+      ];
+      
+      amountDetails.forEach(([label, value], index) => {
+        const isLast = index === amountDetails.length - 1;
+        doc.setFontSize(9);
+        
+        if (isLast) {
+          doc.setTextColor(31, 41, 55);
+          doc.setFont('helvetica', 'bold');
+        } else {
+          doc.setTextColor(107, 114, 128);
+          doc.setFont('helvetica', 'normal');
+        }
+        
+        doc.text(label, 30, yPos + 6);
+        doc.text(value, pageWidth - 35, yPos + 6, { align: 'right' });
+        yPos += 7;
+      });
+      
+      yPos += 4;
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, yPos, pageWidth - 20, yPos);
+      yPos += 8;
+      
+      // Beneficiary Section
+      doc.setTextColor(31, 41, 55);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Beneficiary Details', 20, yPos);
+      yPos += 6;
+      
+      const beneficiary = [
+        ['Name', txn.bene_name || 'N/A'],
+        ['Account Number', txn.account_number || 'XXXXXXXXXX1234'],
+        ['IFSC Code', txn.ifsc || 'N/A'],
+        ['Bank Name', txn.bank_name || 'N/A'],
+      ];
+      
+      beneficiary.forEach(([label, value]) => {
+        doc.setFontSize(9);
+        doc.setTextColor(107, 114, 128);
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 30, yPos + 6);
+        
+        doc.setTextColor(31, 41, 55);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(value), 80, yPos + 6);
+        yPos += 7;
+      });
+      
+      // Footer
+      const footerY = pageHeight - 30;
+      doc.setDrawColor(229, 231, 235);
+      doc.line(20, footerY, pageWidth - 20, footerY);
+      
+      doc.setTextColor(156, 163, 175);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text('This is a system generated receipt.', pageWidth / 2, footerY + 8, { align: 'center' });
+      
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
-      doc.text(String(value), 80, yPos + 6);
-      yPos += 7;
-    });
-    
-    // Footer
-    const footerY = pageHeight - 30;
-    doc.setDrawColor(229, 231, 235);
-    doc.line(20, footerY, pageWidth - 20, footerY);
-    
-    doc.setTextColor(156, 163, 175);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.text('This is a system generated receipt.', pageWidth / 2, footerY + 8, { align: 'center' });
-    
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 15, { align: 'center' });
-    
-    doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    alert('Failed to generate PDF. Please try again.');
-  }};
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 15, { align: 'center' });
+      
+      doc.save(`Transaction_Receipt_${txn.trx_id || txn.id}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
 
   const allPayouts = transactionData.data || [];
   const totalItems = transactionData.total || 0;
@@ -2395,51 +2527,43 @@ const exportSingleTransactionPDF = (txn) => {
                     <td className="px-3 sm:px-4 py-2.5 sm:py-3.5 text-[10px] sm:text-xs font-medium text-gray-800 whitespace-nowrap">{txn.order_id || 'N/A'}</td>
                     <td className="px-3 sm:px-4 py-2.5 sm:py-3.5"><StatusBadge status={txn.status} /></td>
                     <td className="px-3 sm:px-4 py-2.5 sm:py-3.5 text-[10px] sm:text-xs font-medium text-gray-800 whitespace-nowrap">{txn.utr || "–"}</td>
-                    <td className="px-3 sm:px-4 py-2.5 sm:py-3.5 relative">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === txn.id ? null : txn.id); }}
-                        className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
-                      >
-                        <svg width={14} sm:width={16} height={14} sm:height={16} viewBox="0 0 24 24" fill="currentColor">
-                          <circle cx="12" cy="5" r="1.5"/>
-                          <circle cx="12" cy="12" r="1.5"/>
-                          <circle cx="12" cy="19" r="1.5"/>
-                        </svg>
-                      </button>
-                      {openMenu === txn.id && (
-                        <div className="absolute right-6 sm:right-8 top-0 sm:top-2 z-50 bg-white rounded-xl shadow-xl border border-gray-100 py-1 w-36 sm:w-40">
-                          <button
-                            onClick={() => { setSelected(txn); setOpenMenu(null); }}
-                            className="flex items-center gap-2 sm:gap-2.5 w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                          >
-                            <svg width={11} sm:width={13} height={11} sm:height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                              <circle cx="12" cy="12" r="3"/>
+                    <td className="px-3 sm:px-4 py-2.5 sm:py-3.5">
+                      <div className="flex items-center gap-1">
+                        {/* ─── Webhook Button ─── */}
+                        <button
+                          onClick={() => {
+                            const orderId = txn.order_id;
+                            handleResendWebhook(orderId, txn.id);
+                          }}
+                          disabled={webhookLoading === txn.id}
+                          className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors disabled:opacity-50"
+                          title="Resend Webhook"
+                        >
+                          {webhookLoading === txn.id ? (
+                            <span className="inline-block w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                              <path d="M4 4v16h16" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M8 12l3 3 8-8" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            View Details
-                          </button>
-                          <button 
-                            onClick={() => { 
-                              exportSingleTransactionPDF(txn);
-                              setOpenMenu(null);
-                            }}
-                            className="flex items-center gap-2 sm:gap-2.5 w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                          >
-                            <svg width={11} sm:width={13} height={11} sm:height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                            </svg>
-                            Download Receipt
-                          </button>
-                          <button className="flex items-center gap-2 sm:gap-2.5 w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs text-gray-700 hover:bg-gray-50 transition-colors">
-                            <svg width={11} sm:width={13} height={11} sm:height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                              <polyline points="15 3 21 3 21 9"/>
-                              <line x1="10" y1="14" x2="21" y2="3"/>
-                            </svg>
-                            Raise Ticket
-                          </button>
-                        </div>
-                      )}
+                          )}
+                        </button>
+
+                        {/* ─── Three Dot Menu ─── */}
+                        <button
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleMenuToggle(txn.id, e);
+                          }}
+                          className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+                        >
+                          <svg width={14} sm:width={16} height={14} sm:height={16} viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="5" r="1.5"/>
+                            <circle cx="12" cy="12" r="1.5"/>
+                            <circle cx="12" cy="19" r="1.5"/>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -2507,6 +2631,68 @@ const exportSingleTransactionPDF = (txn) => {
           </div>
         </div>
       </div>
+
+      {/* ─── Dropdown Menu (Rendered with fixed positioning) ─── */}
+      {openMenu && (
+        <div 
+          className="fixed z-[9999] bg-white rounded-xl shadow-xl border border-gray-100 py-1 w-40 min-w-[160px]"
+          style={{
+            top: dropdownPosition.top + 'px',
+            left: dropdownPosition.left + 'px'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Backdrop for click outside */}
+          <div 
+            className="fixed inset-0 z-[-1]" 
+            onClick={() => setOpenMenu(null)}
+          />
+          
+          {/* Find the selected transaction */}
+          {(() => {
+            const txn = allPayouts.find(t => t.id === openMenu);
+            if (!txn) return null;
+            
+            return (
+              <>
+                <button
+                  onClick={() => { setSelected(txn); setOpenMenu(null); }}
+                  className="flex items-center gap-2 sm:gap-2.5 w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <svg width={11} sm:width={13} height={11} sm:height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  View Details
+                </button>
+                <button 
+                  onClick={() => { 
+                    exportSingleTransactionPDF(txn);
+                    setOpenMenu(null);
+                  }}
+                  className="flex items-center gap-2 sm:gap-2.5 w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <svg width={11} sm:width={13} height={11} sm:height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                  Download Receipt
+                </button>
+                <button 
+                  onClick={() => setOpenMenu(null)}
+                  className="flex items-center gap-2 sm:gap-2.5 w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <svg width={11} sm:width={13} height={11} sm:height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                  Raise Ticket
+                </button>
+              </>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 }
