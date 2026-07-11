@@ -688,23 +688,23 @@ export default function MerchantProfile() {
             </div>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
               {/* Avatar */}
-              <div className="flex flex-col items-center gap-2 sm:gap-3 shrink-0">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center">
+              {/* <div className="flex flex-col items-center gap-2 sm:gap-3 shrink-0"> */}
+                {/* <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center">
                   <svg width={36} sm:width={42} height={36} sm:height={42} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.4}>
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                     <polyline points="9 22 9 12 15 12 15 22" />
                     <rect x="8" y="6" width="3" height="4" rx="0.5" />
                     <rect x="13" y="6" width="3" height="4" rx="0.5" />
                   </svg>
-                </div>
-                <button className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 border border-gray-200 rounded-xl text-[10px] sm:text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                </div> */}
+                {/* <button className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 border border-gray-200 rounded-xl text-[10px] sm:text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
                   <svg width={9} sm:width={11} height={9} sm:height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                   Change Logo
-                </button>
-              </div>
+                </button> */}
+              {/* </div> */}
 
               {/* Info */}
               <div className="flex-1 min-w-0">
