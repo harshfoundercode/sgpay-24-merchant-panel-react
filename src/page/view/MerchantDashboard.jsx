@@ -280,12 +280,20 @@ export default function MerchantDashboard() {
             sub: `${today.payout_count} Transactions`,
             subColor: "text-gray-400",
           },
+          // {
+          //   icon: <svg width={18} sm:width={22} height={18} sm:height={22} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>,
+          //   iconBg: "bg-indigo-50",
+          //   label: "Today's Transactions",
+          //   value: formatNumber(today.payout_count),
+          //   sub: "Total payout count",
+          //   subColor: "text-gray-400",
+          // },
           {
             icon: <svg width={18} sm:width={22} height={18} sm:height={22} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>,
             iconBg: "bg-indigo-50",
-            label: "Today's Transactions",
-            value: formatNumber(today.payout_count),
-            sub: "Total payout count",
+            label: "Today's Success Rate",
+            value: formatCurrency(today.success_amount),
+            sub: `${today.success_count} Total success count`,
             subColor: "text-gray-400",
           },
           {
