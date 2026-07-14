@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FileText, ChevronDown } from "lucide-react";
 
-function DateRangePicker({ 
-    onDateChange, 
-    initialStartDate = null, 
+function DateRangePicker({
+    onDateChange,
+    initialStartDate = null,
     initialEndDate = null,
     placeholder = "Select date range",
-    className = "" 
+    className = ""
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -51,7 +51,7 @@ function DateRangePicker({
 
     const handleDateClick = (day) => {
         const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-        
+
         if (selectionPhase === 'start') {
             setTempStartDate(clickedDate);
             setTempEndDate(null);
@@ -69,22 +69,22 @@ function DateRangePicker({
 
     const formatDateRange = () => {
         if (tempStartDate && tempEndDate) {
-            const start = tempStartDate.toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric' 
+            const start = tempStartDate.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
             });
-            const end = tempEndDate.toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric' 
+            const end = tempEndDate.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
             });
             return `${start} - ${end}`;
         } else if (tempStartDate) {
-            const start = tempStartDate.toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric' 
+            const start = tempStartDate.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
             });
             return `${start} - Select end date`;
         }
@@ -94,37 +94,69 @@ function DateRangePicker({
     // For mobile display - shorter format
     const formatDateRangeMobile = () => {
         if (tempStartDate && tempEndDate) {
-            const start = tempStartDate.toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short' 
+            const start = tempStartDate.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short'
             });
-            const end = tempEndDate.toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short' 
+            const end = tempEndDate.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short'
             });
             return `${start} - ${end}`;
         } else if (tempStartDate) {
-            const start = tempStartDate.toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short' 
+            const start = tempStartDate.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short'
             });
             return `${start} - ?`;
         }
         return placeholder;
     };
 
+    // const applyDateRange = () => {
+    //     if (tempStartDate && tempEndDate && onDateChange) {
+    //         onDateChange({
+    //             startDate: tempStartDate,
+    //             endDate: tempEndDate,
+    //             startFormatted: tempStartDate.toLocaleDateString('en-US', { 
+    //                 day: 'numeric', month: 'short', year: 'numeric' 
+    //             }),
+    //             endFormatted: tempEndDate.toLocaleDateString('en-US', { 
+    //                 day: 'numeric', month: 'short', year: 'numeric' 
+    //             }),
+    //             dateRange: `${formatDateRange()}`
+    //         });
+    //     }
+    //     setIsOpen(false);
+    // };
+
     const applyDateRange = () => {
         if (tempStartDate && tempEndDate && onDateChange) {
+            // Format dates as YYYY-M-DD for API
+            const formatDateForAPI = (date) => {
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1; // JavaScript months are 0-indexed
+                const day = date.getDate();
+                return `${year}-${month}-${day}`;
+            };
+
+            // Format dates for display (human-readable)
+            const formatDateForDisplay = (date) => {
+                return date.toLocaleDateString('en-US', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            };
+
             onDateChange({
                 startDate: tempStartDate,
                 endDate: tempEndDate,
-                startFormatted: tempStartDate.toLocaleDateString('en-US', { 
-                    day: 'numeric', month: 'short', year: 'numeric' 
-                }),
-                endFormatted: tempEndDate.toLocaleDateString('en-US', { 
-                    day: 'numeric', month: 'short', year: 'numeric' 
-                }),
-                dateRange: `${formatDateRange()}`
+                startFormatted: formatDateForAPI(tempStartDate), // For API
+                endFormatted: formatDateForAPI(tempEndDate),     // For API
+                startDisplay: formatDateForDisplay(tempStartDate), // For display
+                endDisplay: formatDateForDisplay(tempEndDate),     // For display
+                dateRange: `${formatDateForDisplay(tempStartDate)} - ${formatDateForDisplay(tempEndDate)}`
             });
         }
         setIsOpen(false);
@@ -161,9 +193,9 @@ function DateRangePicker({
         const daysInMonth = getDaysInMonth(year, month);
         const firstDay = getFirstDayOfMonth(year, month);
         const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
-        
+
         const days = [];
-        
+
         // Previous month days
         const prevMonthDays = getDaysInMonth(year, month - 1);
         for (let i = adjustedFirstDay - 1; i >= 0; i--) {
@@ -173,7 +205,7 @@ function DateRangePicker({
                 date: new Date(year, month - 1, prevMonthDays - i)
             });
         }
-        
+
         // Current month days
         for (let i = 1; i <= daysInMonth; i++) {
             days.push({
@@ -182,7 +214,7 @@ function DateRangePicker({
                 date: new Date(year, month, i)
             });
         }
-        
+
         // Next month days
         const remainingDays = 42 - days.length;
         for (let i = 1; i <= remainingDays; i++) {
@@ -192,7 +224,7 @@ function DateRangePicker({
                 date: new Date(year, month + 1, i)
             });
         }
-        
+
         return days;
     };
 
@@ -204,7 +236,7 @@ function DateRangePicker({
         const end = new Date();
         const start = new Date();
         start.setDate(end.getDate() - days);
-        
+
         if (days === 0) {
             setTempStartDate(end);
             setTempEndDate(end);
@@ -216,7 +248,7 @@ function DateRangePicker({
     };
 
     const days = generateCalendarDays();
-    
+
     // Responsive: Use different display for mobile
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
     const displayText = isMobile ? formatDateRangeMobile() : formatDateRange();
@@ -245,7 +277,7 @@ function DateRangePicker({
                 `}>
                     {/* Month Navigation */}
                     <div className="flex items-center justify-between mb-3 sm:mb-4">
-                        <button 
+                        <button
                             onClick={() => navigateMonth(-1)}
                             className="p-1.5 sm:p-1 hover:bg-gray-100 rounded-lg transition-colors"
                         >
@@ -254,7 +286,7 @@ function DateRangePicker({
                         <span className="text-xs sm:text-sm font-semibold text-gray-700">
                             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                         </span>
-                        <button 
+                        <button
                             onClick={() => navigateMonth(1)}
                             className="p-1.5 sm:p-1 hover:bg-gray-100 rounded-lg transition-colors"
                         >
@@ -277,7 +309,7 @@ function DateRangePicker({
                             const isSelected = isRangeStart(dayObj.date) || isRangeEnd(dayObj.date);
                             const isInRange = isDateInRange(dayObj.date);
                             const isToday = new Date().toDateString() === dayObj.date.toDateString();
-                            
+
                             return (
                                 <button
                                     key={index}
@@ -318,7 +350,7 @@ function DateRangePicker({
                                 </button>
                             ))}
                         </div>
-                        
+
                         {/* Apply/Clear Buttons */}
                         <div className="flex gap-2 mt-2 sm:mt-3">
                             <button
@@ -331,8 +363,8 @@ function DateRangePicker({
                                 onClick={applyDateRange}
                                 disabled={!tempStartDate || !tempEndDate}
                                 className={`flex-1 text-[11px] sm:text-xs font-semibold text-white rounded-lg py-1.5 sm:py-2 transition-colors
-                                    ${tempStartDate && tempEndDate 
-                                        ? 'bg-blue-600 hover:bg-blue-700' 
+                                    ${tempStartDate && tempEndDate
+                                        ? 'bg-blue-600 hover:bg-blue-700'
                                         : 'bg-gray-300 cursor-not-allowed'
                                     }`}
                             >
