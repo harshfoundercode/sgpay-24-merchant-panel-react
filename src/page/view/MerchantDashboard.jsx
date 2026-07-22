@@ -10,19 +10,10 @@ import dashboardService from "../../services/DashboardServices";
 const formatCurrency = (amount) => {
   const num = parseFloat(amount);
   if (isNaN(num)) return '₹0.00';
-  if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
-  if (num >= 100000) return `₹${(num / 100000).toFixed(2)} L`;
+  // Exact value with proper Indian number formatting
   return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const formatCurrencyShort = (amount) => {
-  const num = parseFloat(amount);
-  if (isNaN(num)) return '₹0';
-  if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)}Cr`;
-  if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L`;
-  if (num >= 1000) return `₹${(num / 1000).toFixed(0)}K`;
-  return `₹${num.toFixed(0)}`;
-};
 
 const formatNumber = (num) => {
   if (!num && num !== 0) return '0';
@@ -291,7 +282,7 @@ export default function MerchantDashboard() {
           {
             icon: <svg width={18} sm:width={22} height={18} sm:height={22} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>,
             iconBg: "bg-indigo-50",
-            label: "Today's Success Rate",
+            label: "Today's Success Amount",
             value: formatCurrency(today.success_amount),
             sub: `${today.success_count} Total success count`,
             subColor: "text-gray-400",
