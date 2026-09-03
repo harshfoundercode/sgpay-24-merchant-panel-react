@@ -1,6 +1,29 @@
 import { useState, useEffect } from "react";
 import merchantSettingsService from "../../services/SettingServices";
 
+// ── UTC Time Formatter ──────────────────────────────────────────────────────
+const formatUTCDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-IN', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric',
+    timeZone: 'UTC'
+  });
+};
+
+const formatUTCTime = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleTimeString('en-IN', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC'
+  });
+};
+
 // ── Toggle ───────────────────────────────────────────────────────────────────
 const Toggle = ({ enabled, onChange }) => (
   <button

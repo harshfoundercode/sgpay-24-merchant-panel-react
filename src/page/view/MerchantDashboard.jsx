@@ -10,10 +10,8 @@ import dashboardService from "../../services/DashboardServices";
 const formatCurrency = (amount) => {
   const num = parseFloat(amount);
   if (isNaN(num)) return '₹0.00';
-  // Exact value with proper Indian number formatting
   return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
-
 
 const formatNumber = (num) => {
   if (!num && num !== 0) return '0';
@@ -24,6 +22,21 @@ const yFormat = (v) => {
   if (v >= 100000) return `${(v / 100000).toFixed(1)}L`;
   if (v >= 1000) return `${(v / 1000).toFixed(0)}K`;
   return v;
+};
+
+// ─── UTC Time Formatter ──────────────────────────────────────────────────────
+const formatUTCTime = (utcDateString) => {
+  if (!utcDateString) return '-';
+  const date = new Date(utcDateString);
+  return date.toLocaleDateString('en-IN', { 
+    day: '2-digit', 
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC'
+  });
 };
 
 // ─── Tooltip Components ──────────────────────────────────────────────────────
@@ -152,12 +165,13 @@ export default function MerchantDashboard() {
 
   const formattedPayoutTrend = payoutTrend.map(item => {
     const amountValue = parseFloat(item.total_amount) || parseFloat(item.amount) || 0;
+    const dateObj = new Date(item.date);
     
     return {
       ...item,
-      formattedDate: new Date(item.date).toLocaleDateString('en-IN', { 
+      formattedDate: dateObj.toLocaleDateString('en-IN', { 
         day: '2-digit', 
-        month: 'short' 
+        month: 'short'
       }),
       amount: amountValue,
       count: item.txn_count || 0
@@ -271,14 +285,6 @@ export default function MerchantDashboard() {
             sub: `${today.payout_count} Transactions`,
             subColor: "text-gray-400",
           },
-          // {
-          //   icon: <svg width={18} sm:width={22} height={18} sm:height={22} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>,
-          //   iconBg: "bg-indigo-50",
-          //   label: "Today's Transactions",
-          //   value: formatNumber(today.payout_count),
-          //   sub: "Total payout count",
-          //   subColor: "text-gray-400",
-          // },
           {
             icon: <svg width={18} sm:width={22} height={18} sm:height={22} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.8}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>,
             iconBg: "bg-indigo-50",
@@ -656,12 +662,7 @@ export default function MerchantDashboard() {
                       </span>
                     </td>
                     <td className="py-2 px-2 text-gray-500">
-                      {new Date(txn.created_at).toLocaleDateString('en-IN', { 
-                        day: '2-digit', 
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {txn.created_at}
                     </td>
                   </tr>
                 ))}

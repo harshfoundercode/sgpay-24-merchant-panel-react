@@ -1,13 +1,13 @@
-// import { useState } from "react";
-// import { Secrete_key, Api_key } from "../../../env";
+// import { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
+// import merchantProfileService from "../../services/MerchantProfileServices";
 
 // // ── Reusable components ───────────────────────────────────────────────────────
 // const InfoRow = ({ label, value, isNode }) => (
 //   <div className="flex flex-col sm:flex-row sm:items-start py-2 sm:py-2.5 border-b border-gray-50 last:border-0 gap-1 sm:gap-0">
 //     <span className="text-[11px] sm:text-xs font-semibold text-gray-800 sm:w-36 md:w-40 shrink-0">{label}</span>
 //     <span className="hidden sm:inline text-gray-400 mx-3 text-sm">:</span>
-//     {isNode ? value : <span className="text-[11px] sm:text-sm font-medium text-gray-800 wrap-break-word">{value}</span>}
+//     {isNode ? value : <span className="text-[11px] sm:text-sm font-medium text-gray-800 wrap-break-word">{value || "—"}</span>}
 //   </div>
 // );
 
@@ -32,12 +32,14 @@
 //   const map = {
 //     green: "bg-green-50 text-green-700 border-green-200",
 //     blue: "bg-blue-50 text-blue-700 border-blue-200",
+//     red: "bg-red-50 text-red-600 border-red-200",
+//     yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
 //   };
-//   return <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border whitespace-nowrap ${map[color]}`}>{label}</span>;
+//   return <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border whitespace-nowrap ${map[color] || map.green}`}>{label}</span>;
 // };
 
 // // ── Page Header ───────────────────────────────────────────────────────────────
-// const PageHeader = () => (
+// const PageHeader = ({ merchant }) => (
 //   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-5 sm:mb-6 gap-3 flex-wrap">
 //     <div>
 //       <h1 className="text-lg sm:text-xl font-bold text-gray-900">Profile</h1>
@@ -52,8 +54,8 @@
 //           </svg>
 //         </div>
 //         <div className="min-w-0 flex-1">
-//           <div className="text-[11px] sm:text-xs font-bold text-gray-900 truncate">Demo Store</div>
-//           <div className="text-[9px] sm:text-[11px] text-gray-400">MID: M12345678</div>
+//           <div className="text-[11px] sm:text-xs font-bold text-gray-900 truncate">{merchant?.merchant_name || merchant?.business_name || "Merchant"}</div>
+//           <div className="text-[9px] sm:text-[11px] text-gray-400">{merchant?.merchant_id || "MID: N/A"}</div>
 //         </div>
 //         <svg width={12} sm:width={14} height={12} sm:height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-gray-400 shrink-0">
 //           <path d="M19 9l-7 7-7-7" />
@@ -64,12 +66,32 @@
 // );
 
 // // ── Edit Profile Modal ────────────────────────────────────────────────────────
-// const EditModal = ({ data, onClose, onSave }) => {
-//   const [form, setForm] = useState({ ...data });
+// const EditModal = ({ data, onClose, onSave, loading }) => {
+//   const [form, setForm] = useState({});
+  
+//   useEffect(() => {
+//     if (data) {
+//       setForm({
+//         merchant_name: data.merchant_name || "",
+//         business_name: data.business_name || "",
+//         email: data.email || "",
+//         mobile: data.mobile || "",
+//         city: data.city || "",
+//         state: data.state || "",
+//         pincode: data.pincode || "",
+//         business_address: data.business_address || "",
+//         website_url: data.website_url || "",
+//         gst_number: data.gst_number || "",
+//         pan_number: data.pan_number || "",
+//         business_type: data.business_type || "",
+//       });
+//     }
+//   }, [data]);
+
 //   return (
 //     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
-//       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-3 sm:mx-4 p-4 sm:p-6" onClick={e => e.stopPropagation()}>
-//         <div className="flex items-center justify-between mb-4 sm:mb-5">
+//       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-3 sm:mx-4 p-4 sm:p-6" onClick={e => e.stopPropagation()}>
+//         <div className="flex items-center justify-between mb-4 sm:mb-5 sticky top-0 bg-white pb-2 border-b border-gray-100">
 //           <h3 className="text-sm sm:text-base font-bold text-gray-900">Edit Profile</h3>
 //           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
 //             <svg width={16} sm:width={18} height={16} sm:height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -78,26 +100,62 @@
 //             </svg>
 //           </button>
 //         </div>
-//         <div className="space-y-2.5 sm:space-y-3">
+//         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 //           {[
-//             { label: "Merchant Name", key: "name" },
-//             { label: "Email Address", key: "email" },
-//             { label: "Mobile Number", key: "mobile" },
-//             { label: "Company Name", key: "company" },
+//             { label: "Merchant Name", key: "merchant_name", required: true },
+//             { label: "Business Name", key: "business_name", required: true },
+//             { label: "Email Address", key: "email", type: "email", required: true },
+//             { label: "Mobile Number", key: "mobile", required: true },
+//             { label: "Business Type", key: "business_type" },
+//             { label: "GST Number", key: "gst_number" },
+//             { label: "PAN Number", key: "pan_number" },
+//             { label: "Website URL", key: "website_url" },
+//             { label: "City", key: "city" },
+//             { label: "State", key: "state" },
+//             { label: "Pincode", key: "pincode" },
+//             { label: "Business Address", key: "business_address", full: true },
 //           ].map(f => (
-//             <div key={f.key}>
-//               <label className="text-[11px] sm:text-xs font-semibold text-gray-600 mb-1 block">{f.label}</label>
-//               <input
-//                 value={form[f.key]}
-//                 onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-//                 className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-//               />
+//             <div key={f.key} className={f.full ? "col-span-1 sm:col-span-2" : ""}>
+//               <label className="text-[11px] sm:text-xs font-semibold text-gray-600 mb-1 block">
+//                 {f.label} {f.required && <span className="text-red-500">*</span>}
+//               </label>
+//               {f.key === "business_address" ? (
+//                 <textarea
+//                   value={form[f.key] || ""}
+//                   onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+//                   rows={2}
+//                   className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 resize-none"
+//                 />
+//               ) : (
+//                 <input
+//                   type={f.type || "text"}
+//                   value={form[f.key] || ""}
+//                   onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+//                   className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+//                 />
+//               )}
 //             </div>
 //           ))}
 //         </div>
 //         <div className="flex gap-2 mt-4 sm:mt-5">
 //           <button onClick={onClose} className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-//           <button onClick={() => { onSave(form); onClose(); }} className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition-colors">Save Changes</button>
+//           <button 
+//             onClick={() => { onSave(form); }} 
+//             disabled={loading}
+//             className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+//           >
+//             {loading ? (
+//               <>
+//                 <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+//                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//                 </svg>
+//                 Saving...
+//               </>
+//             ) : (
+//               "Save Changes"
+//             )}
+//           </button>
 //         </div>
 //       </div>
 //     </div>
@@ -110,19 +168,71 @@
 //   const [showApiKey, setShowApiKey] = useState(false);
 //   const [showSecret, setShowSecret] = useState(false);
 //   const [regenerating, setRegenerating] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [profile, setProfile] = useState(null);
+//   const [editLoading, setEditLoading] = useState(false);
+//   const [toast, setToast] = useState(null);
 //   const navigate = useNavigate();
 
-//   const [profile, setProfile] = useState({
-//     name: "Demo Store",
-//     email: "merchant@demostore.com",
-//     mobile: "+91 98765 43210",
-//     company: "Demo Store Private Limited",
-//     address: "123, Business Park, 2nd Floor,\nSector 62, Noida, Uttar Pradesh - 201309, India",
-//   });
+//   const showToast = (message, isError = false) => {
+//     setToast({ message, isError });
+//     setTimeout(() => setToast(null), 3000);
+//   };
 
-//   const handleRegen = () => {
+//   // ─── Fetch Profile ──────────────────────────────────────────────────────────
+//   const fetchProfile = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await merchantProfileService.getProfile();
+//       console.log("Profile Data:", response);
+//       setProfile(response);
+//     } catch (error) {
+//       console.error("Error fetching profile:", error);
+//       showToast("Failed to load profile", true);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchProfile();
+//   }, []);
+
+//   // ─── Update Profile ─────────────────────────────────────────────────────────
+//   const handleUpdateProfile = async (formData) => {
+//     setEditLoading(true);
+//     try {
+//       const response = await merchantProfileService.updateProfile(formData);
+//       console.log("Profile updated:", response);
+//       setProfile(response);
+//       showToast("Profile updated successfully!", false);
+//       setEditOpen(false);
+//     } catch (error) {
+//       console.error("Error updating profile:", error);
+//       showToast(error.response?.data?.message || "Failed to update profile", true);
+//     } finally {
+//       setEditLoading(false);
+//     }
+//   };
+
+//   // ─── Regenerate API Keys ────────────────────────────────────────────────────
+//   const handleRegenerateKeys = async () => {
 //     setRegenerating(true);
-//     setTimeout(() => setRegenerating(false), 1500);
+//     try {
+//       const response = await merchantProfileService.regenerateApiKeys();
+//       console.log("Keys regenerated:", response);
+//       setProfile(prev => ({
+//         ...prev,
+//         api_key: response.api_key || response.data?.api_key,
+//         secret_key: response.secret_key || response.data?.secret_key
+//       }));
+//       showToast("API keys regenerated successfully!", false);
+//     } catch (error) {
+//       console.error("Error regenerating keys:", error);
+//       showToast(error.response?.data?.message || "Failed to regenerate keys", true);
+//     } finally {
+//       setRegenerating(false);
+//     }
 //   };
 
 //   const EyeBtn = ({ show, toggle }) => (
@@ -147,7 +257,7 @@
 //       </label>
 //       <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 border border-gray-200 rounded-xl bg-gray-50">
 //         <span className="flex-1 text-[11px] sm:text-sm font-mono text-gray-700 truncate">
-//           {show ? value : String(value).replace(/./g, "•").slice(0, 28)}
+//           {show ? value : value ? String(value).replace(/./g, "•").slice(0, 28) : "Not set"}
 //         </span>
 //         {onToggle && <EyeBtn show={show} toggle={onToggle} />}
 //         <CopyBtn text={value || ""} />
@@ -155,17 +265,52 @@
 //     </div>
 //   );
 
+//   // ─── Loading State ──────────────────────────────────────────────────────────
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+//         <div className="text-center">
+//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+//           <p className="mt-4 text-gray-600">Loading profile...</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   const merchant = profile || {};
+
 //   return (
 //     <div className="min-h-screen bg-gray-50 p-3 sm:p-5 font-sans">
+//       {/* Toast Notification */}
+//       {toast && (
+//         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-sm ${
+//           toast.isError ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+//         }`}>
+//           {!toast.isError ? (
+//             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+//               <path d="M20 6L9 17l-5-5"/>
+//             </svg>
+//           ) : (
+//             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+//               <circle cx="12" cy="12" r="10"/>
+//               <line x1="12" y1="8" x2="12" y2="12"/>
+//               <line x1="12" y1="16" x2="12.01" y2="16"/>
+//             </svg>
+//           )}
+//           {toast.message}
+//         </div>
+//       )}
+
 //       {editOpen && (
 //         <EditModal
-//           data={profile}
+//           data={merchant}
 //           onClose={() => setEditOpen(false)}
-//           onSave={updated => setProfile(p => ({ ...p, ...updated }))}
+//           onSave={handleUpdateProfile}
+//           loading={editLoading}
 //         />
 //       )}
 
-//       <PageHeader />
+//       <PageHeader merchant={merchant} />
 
 //       <div className="flex flex-col lg:flex-row gap-4 sm:gap-5">
 //         {/* ── Left column ── */}
@@ -175,7 +320,7 @@
 //           <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
 //             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5">
 //               <h2 className="text-sm sm:text-base font-bold text-gray-900">Personal Information</h2>
-//               <button
+//               {/* <button
 //                 onClick={() => setEditOpen(true)}
 //                 className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
 //               >
@@ -184,37 +329,39 @@
 //                   <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
 //                 </svg>
 //                 Edit Profile
-//               </button>
+//               </button> */}
 //             </div>
 //             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
 //               {/* Avatar */}
-//               <div className="flex flex-col items-center gap-2 sm:gap-3 shrink-0">
-//                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center">
+//               {/* <div className="flex flex-col items-center gap-2 sm:gap-3 shrink-0"> */}
+//                 {/* <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center">
 //                   <svg width={36} sm:width={42} height={36} sm:height={42} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.4}>
 //                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
 //                     <polyline points="9 22 9 12 15 12 15 22" />
 //                     <rect x="8" y="6" width="3" height="4" rx="0.5" />
 //                     <rect x="13" y="6" width="3" height="4" rx="0.5" />
 //                   </svg>
-//                 </div>
-//                 <button className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 border border-gray-200 rounded-xl text-[10px] sm:text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+//                 </div> */}
+//                 {/* <button className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 border border-gray-200 rounded-xl text-[10px] sm:text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
 //                   <svg width={9} sm:width={11} height={9} sm:height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
 //                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
 //                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
 //                   </svg>
 //                   Change Logo
-//                 </button>
-//               </div>
+//                 </button> */}
+//               {/* </div> */}
 
 //               {/* Info */}
 //               <div className="flex-1 min-w-0">
-//                 <InfoRow label="Merchant Name" value={profile.name} />
-//                 <InfoRow label="Email Address" value={profile.email} />
-//                 <InfoRow label="Mobile Number" value={profile.mobile} />
-//                 <InfoRow label="Company Name" value={profile.company} />
-//                 <InfoRow label="Address" value={profile.address.split("\n").map((line, i) => (
-//                   <div key={i}>{line}</div>
-//                 ))} isNode />
+//                 <InfoRow label="Merchant Name" value={merchant.merchant_name} />
+//                 <InfoRow label="Business Name" value={merchant.business_name} />
+//                 <InfoRow label="Email Address" value={merchant.email} />
+//                 <InfoRow label="Mobile Number" value={merchant.mobile} />
+//                 <InfoRow label="Business Type" value={merchant.business_type} />
+//                 <InfoRow label="City" value={merchant.city} />
+//                 <InfoRow label="State" value={merchant.state} />
+//                 <InfoRow label="Pincode" value={merchant.pincode} />
+//                 <InfoRow label="Address" value={merchant.business_address} />
 //               </div>
 //             </div>
 //           </div>
@@ -222,21 +369,24 @@
 //           {/* Business Information */}
 //           <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
 //             <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4">Business Information</h2>
-//             <InfoRow label="Business Type" value="Private Limited" />
-//             <InfoRow label="GST Number" value="09AABCD1234E1Z5" />
-//             <InfoRow label="PAN Number" value="AABCD1234E" />
-//             <InfoRow label="Website" value="www.demostore.com" />
-//             <InfoRow label="Business Email" value="info@demostore.com" />
+//             <InfoRow label="Business Type" value={merchant.business_type || "—"} />
+//             <InfoRow label="GST Number" value={merchant.gst_number || "—"} />
+//             <InfoRow label="PAN Number" value={merchant.pan_number || "—"} />
+//             <InfoRow label="Website" value={merchant.website_url || "—"} />
+//             <InfoRow label="Settlement Cycle" value={merchant.settlement_cycle || "—"} />
+//             <InfoRow label="Auto Settlement" value={merchant.auto_settlement ? "Enabled" : "Disabled"} />
 //           </div>
 
 //           {/* Account Information */}
 //           <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
 //             <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4">Account Information</h2>
-//             <InfoRow label="Account Created On" value="10 Jan 2025, 10:30 AM" />
-//             <InfoRow label="Account Status" value={<Badge label="Active" color="green" />} isNode />
-//             <InfoRow label="KYC Status" value={<Badge label="Verified" color="blue" />} isNode />
-//             <InfoRow label="Last Login" value="14 May 2025, 11:20 AM" />
-//             <InfoRow label="Login IP" value="223.186.25.105" />
+//             <InfoRow label="Account Created On" value={merchant.created_at ? new Date(merchant.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "—"} />
+//             <InfoRow label="Account Status" value={<Badge label={merchant.merchant_status === 'active' ? 'Active' : merchant.merchant_status || 'Unknown'} color={merchant.merchant_status === 'active' ? 'green' : merchant.merchant_status === 'pending' ? 'yellow' : 'red'} />} isNode />
+//             <InfoRow label="Wallet Balance" value={`₹${parseFloat(merchant.wallet || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`} />
+//             <InfoRow label="Merchant ID" value={merchant.merchant_id} />
+//             <InfoRow label="Account Holder" value={merchant.account_holder_name || "—"} />
+//             <InfoRow label="Bank Name" value={merchant.bank_name || "—"} />
+//             <InfoRow label="IFSC Code" value={merchant.ifsc_code || "—"} />
 //           </div>
 //         </div>
 
@@ -251,27 +401,27 @@
 //             <div className="mb-3 sm:mb-4">
 //               <label className="text-[11px] sm:text-xs font-semibold text-gray-600 mb-1 block">Merchant ID (MID)</label>
 //               <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 border border-gray-200 rounded-xl bg-gray-50">
-//                 <span className="flex-1 text-[11px] sm:text-sm font-mono font-semibold text-gray-800 truncate">M12345678</span>
-//                 <CopyBtn text="M12345678" />
+//                 <span className="flex-1 text-[11px] sm:text-sm font-mono font-semibold text-gray-800 truncate">{merchant.merchant_id || "N/A"}</span>
+//                 <CopyBtn text={merchant.merchant_id || ""} />
 //               </div>
 //             </div>
 
 //             <CredentialField
 //               label="API Key"
-//               value={Api_key || "key not set"}
+//               value={merchant.api_key || ""}
 //               show={showApiKey}
 //               onToggle={() => setShowApiKey(v => !v)}
 //             />
 
 //             <CredentialField
 //               label="Secret Key"
-//               value={Secrete_key || "key not set"}
+//               value={merchant.secret_key || ""}
 //               show={showSecret}
 //               onToggle={() => setShowSecret(v => !v)}
 //             />
 
 //             <button
-//               onClick={handleRegen}
+//               onClick={handleRegenerateKeys}
 //               disabled={regenerating}
 //               className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 border border-blue-200 text-blue-600 hover:bg-blue-50 rounded-xl text-xs sm:text-sm font-semibold transition-colors disabled:opacity-60 mb-3 sm:mb-4"
 //             >
@@ -308,13 +458,13 @@
 //                   desc: "Step-by-step guide to integrate with Bridge Pay APIs",
 //                   page: "/dashboard/api-integration",
 //                 },
-//                 {
-//                   icon: <svg width={16} sm:width={18} height={16} sm:height={18} viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth={1.8}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
-//                   bg: "bg-amber-50",
-//                   title: "Error Codes Documentation",
-//                   desc: "Understand API error codes and their solutions",
-//                   page: "/dashboard/error-codes",
-//                 },
+//                 // {
+//                 //   icon: <svg width={16} sm:width={18} height={16} sm:height={18} viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth={1.8}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
+//                 //   bg: "bg-amber-50",
+//                 //   title: "Error Codes Documentation",
+//                 //   desc: "Understand API error codes and their solutions",
+//                 //   page: "/dashboard/error-codes",
+//                 // },
 //               ].map((doc) => (
 //                 <button
 //                   key={doc.title}
@@ -352,10 +502,23 @@
 //     </div>
 //   );
 // }
-// src/pages/MerchantProfile.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import merchantProfileService from "../../services/MerchantProfileServices";
+
+// ── UTC Time Formatter ──────────────────────────────────────────────────────
+const formatUTCDateTime = (dateString) => {
+  if (!dateString) return '—';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-IN', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC'
+  });
+};
 
 // ── Reusable components ───────────────────────────────────────────────────────
 const InfoRow = ({ label, value, isNode }) => (
@@ -675,38 +838,8 @@ export default function MerchantProfile() {
           <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5">
               <h2 className="text-sm sm:text-base font-bold text-gray-900">Personal Information</h2>
-              {/* <button
-                onClick={() => setEditOpen(true)}
-                className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <svg width={11} sm:width={13} height={11} sm:height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-                Edit Profile
-              </button> */}
             </div>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-              {/* Avatar */}
-              {/* <div className="flex flex-col items-center gap-2 sm:gap-3 shrink-0"> */}
-                {/* <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center">
-                  <svg width={36} sm:width={42} height={36} sm:height={42} viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth={1.4}>
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
-                    <rect x="8" y="6" width="3" height="4" rx="0.5" />
-                    <rect x="13" y="6" width="3" height="4" rx="0.5" />
-                  </svg>
-                </div> */}
-                {/* <button className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 border border-gray-200 rounded-xl text-[10px] sm:text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-                  <svg width={9} sm:width={11} height={9} sm:height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
-                  Change Logo
-                </button> */}
-              {/* </div> */}
-
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <InfoRow label="Merchant Name" value={merchant.merchant_name} />
                 <InfoRow label="Business Name" value={merchant.business_name} />
@@ -735,7 +868,10 @@ export default function MerchantProfile() {
           {/* Account Information */}
           <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
             <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4">Account Information</h2>
-            <InfoRow label="Account Created On" value={merchant.created_at ? new Date(merchant.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "—"} />
+            <InfoRow 
+              label="Account Created On" 
+              value={merchant.created_at} 
+            />
             <InfoRow label="Account Status" value={<Badge label={merchant.merchant_status === 'active' ? 'Active' : merchant.merchant_status || 'Unknown'} color={merchant.merchant_status === 'active' ? 'green' : merchant.merchant_status === 'pending' ? 'yellow' : 'red'} />} isNode />
             <InfoRow label="Wallet Balance" value={`₹${parseFloat(merchant.wallet || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`} />
             <InfoRow label="Merchant ID" value={merchant.merchant_id} />
@@ -813,13 +949,6 @@ export default function MerchantProfile() {
                   desc: "Step-by-step guide to integrate with Bridge Pay APIs",
                   page: "/dashboard/api-integration",
                 },
-                // {
-                //   icon: <svg width={16} sm:width={18} height={16} sm:height={18} viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth={1.8}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
-                //   bg: "bg-amber-50",
-                //   title: "Error Codes Documentation",
-                //   desc: "Understand API error codes and their solutions",
-                //   page: "/dashboard/error-codes",
-                // },
               ].map((doc) => (
                 <button
                   key={doc.title}
